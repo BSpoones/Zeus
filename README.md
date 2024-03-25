@@ -1,5 +1,5 @@
-# Chloris
+# Zeus
 
-Chloris is a custom JDA command framework
+Zeus is a custom JDA command framework
 
 TODO - Actual docs lol
