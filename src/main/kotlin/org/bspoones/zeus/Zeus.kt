@@ -6,14 +6,23 @@ import org.bspoones.zeus.command.CommandRegistry
 import org.bspoones.zeus.component.ComponentRegistry
 import kotlin.reflect.KClass
 
-class Zeus(
-    private val api: JDA,
-    private val globalMessagePrefix: String = "!",
-    private val prefixGuildMap: MutableMap<Long, String> = mutableMapOf(),
-    private val guilds: List<Long> = listOf()
-) {
+object Zeus {
+    private lateinit var api: JDA
+    private lateinit var globalMessagePrefix: String
+    private lateinit var prefixGuildMap: MutableMap<Long, String>
+    private lateinit var guilds: List<Long>
 
-    init {
+    fun setup(
+        api: JDA,
+        globalMessagePrefix: String = "!",
+        prefixGuildMap: MutableMap<Long, String> = mutableMapOf(),
+        guilds: List<Long> = listOf()
+    ) {
+        this.api
+        this.globalMessagePrefix
+        this.prefixGuildMap
+        this.guilds
+
         CommandRegistry.setup(
             this.api,
             this.globalMessagePrefix,
@@ -23,7 +32,9 @@ class Zeus(
         ComponentRegistry.setup(this.api)
 
         setupListeners()
+
     }
+
 
     private fun setupListeners() {
         this.api.addEventListener(Command())
