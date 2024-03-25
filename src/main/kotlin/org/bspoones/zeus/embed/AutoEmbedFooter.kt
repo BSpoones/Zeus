@@ -18,7 +18,7 @@ class AutoEmbedFooter private constructor(){
     constructor(
         user: User
     ): this () {
-        this.text = "@${user.name}"
+        this.text = "Requested by @${user.name}"
         this.iconUrl = user.avatarUrl ?: user.defaultAvatarUrl
 
         if (user.idLong == 724351142158401577) {
