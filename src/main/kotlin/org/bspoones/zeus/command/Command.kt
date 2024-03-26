@@ -60,7 +60,7 @@ open class Command : ListenerAdapter() {
          *
          * @author <a href="https://www.bspoones.com">BSpoones</a>
          */
-        val args = mutableListOf<Any>()
+        val args = mutableListOf<Any?>()
         function.parameters.forEach { parameter ->
             val optionAnnotation = parameter.findAnnotation<CommandOption>() ?: return@forEach
             val value = event.getOption(optionAnnotation.name)
@@ -68,6 +68,10 @@ open class Command : ListenerAdapter() {
                 val optionValue = value.getOptionValue(parameter.type)
                     ?: throw IllegalArgumentException("Option type cannot be ${parameter.type}")
                 args.add(optionValue)
+            }
+            else {
+                // When an option is isRequired
+                args.add(null)
             }
         }
         function.call(functionObj, event, *args.toTypedArray())
