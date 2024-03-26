@@ -23,17 +23,12 @@ object CommandRegistry {
     lateinit var prefixGuildMap: MutableMap<Long, String>
     lateinit var guilds: List<Long>
 
-
     val autoCompleteMap: MutableMap<String, Map<String, List<Any>>> = mutableMapOf()
-    val customChoiceMap: MutableMap<String, () -> Unit> = mutableMapOf()
 
     private val customChoiceMap: MutableMap<String, () -> Collection<Any>> = mutableMapOf()
     private val commandRegistry: MutableList<CommandData> = mutableListOf()
 
 
-    fun registerCommands(commandClazzes: List<KClass<*>>, guildOnly: Boolean = false) {
-        logger.info("Registering ${commandClazzes.size} ${if (guildOnly) "guild" else "global"} commands...")
-        commandClazzes.forEach { clazz ->
     /**
      * Register all commands within a class Object
      *
@@ -70,7 +65,6 @@ object CommandRegistry {
         registerGuildCommands()
     }
 
-    fun setVariableChoice(id: String, block: () -> Unit) {
     /**
      * Set variable choice unit
      *
