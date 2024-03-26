@@ -15,7 +15,6 @@ import java.lang.Exception
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 object MessageUtils {
-
     lateinit var api: JDA
 
     /**
@@ -73,5 +72,4 @@ object MessageUtils {
             false
         }
     }
-
 }
