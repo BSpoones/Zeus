@@ -4,8 +4,6 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
 
 /**
  * **Component Registry**
@@ -13,8 +11,6 @@ import org.slf4j.LoggerFactory
  * Responsible for registration of all components
  */
 object ComponentRegistry {
-
-    private val logger: Logger = LoggerFactory.getLogger("Zeus | Component Handler")
     lateinit var api: JDA
 
     val buttonMap: MutableMap<String, (ButtonInteractionEvent) -> Unit> = mutableMapOf()
