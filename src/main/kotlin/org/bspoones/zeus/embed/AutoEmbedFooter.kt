@@ -2,6 +2,15 @@ package org.bspoones.zeus.embed
 
 import net.dv8tion.jda.api.entities.User
 
+/**
+ * Represents the footer of an embed.
+ *
+ * @property text The text content of the footer.
+ * @property iconUrl The URL of the footer's icon. Default is null.
+ * @constructor Creates an AutoEmbedFooter with the specified properties.
+ * @constructor Creates an AutoEmbedFooter with the text content generated from the specified user.
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 class AutoEmbedFooter private constructor(){
 
     lateinit var text: String

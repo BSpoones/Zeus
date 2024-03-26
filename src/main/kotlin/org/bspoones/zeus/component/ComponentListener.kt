@@ -6,18 +6,42 @@ import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInterac
 import net.dv8tion.jda.api.hooks.ListenerAdapter
 import net.dv8tion.jda.api.interactions.components.Component
 
+/**
+ * **ComponentListener**
+ *
+ * Responsible for all component execution
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 object ComponentListener: ListenerAdapter() {
 
+    /**
+     * Button Interaction event
+     *
+     * Finds button unit in the map and executes it
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     override fun onButtonInteraction(event: ButtonInteractionEvent) {
         val unit = ComponentRegistry.buttonMap[event.componentId] ?: return
         unit.invoke(event)
     }
 
+    /**
+     * Button Modal event
+     *
+     * Finds modal unit in the map and executes it
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     override fun onModalInteraction(event: ModalInteractionEvent) {
         val unit = ComponentRegistry.modalMap[event.modalId] ?: return
         unit.invoke(event)
     }
 
+    /**
+     * Select menu Interaction event
+     *
+     * Finds select menu unit in the map and executes it
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     override fun onGenericSelectMenuInteraction(event: GenericSelectMenuInteractionEvent<*,*>) {
         println("SELECT MENU INTERACTION")
         if (event.component.type == Component.Type.STRING_SELECT) {

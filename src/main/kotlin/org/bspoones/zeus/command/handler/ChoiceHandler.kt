@@ -5,10 +5,22 @@ import net.dv8tion.jda.api.interactions.commands.Command
 import org.bspoones.zeus.command.CommandRegistry
 import org.bspoones.zeus.command.annotations.choices.*
 import org.bspoones.zeus.command.annotations.choices.variable.*
+import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
 import kotlin.reflect.full.hasAnnotation
 
+/**
+ * Registers command options for all parameters with @Choice annotations
+ *
+ * @see org.bspoones.zeus.command.annotations.choices
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 object ChoiceHandler {
+
+    /**
+     * All possible choices a command choice can be
+     * mapped to the corresponding type
+     */
     private val CHOICES = mapOf(
         StringChoices::class to String::class,
         LongChoices::class to Int::class,
@@ -22,6 +34,13 @@ object ChoiceHandler {
         VariableDoubleChoices::class to Float::class,
     )
 
+    /**
+     * Builds a command choice list for slash command registration
+     *
+     * @param parameter [KParameter] - Method parameter
+     * @return List<[Command.Choice]> - List of command choices
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun buildChoices(parameter: KParameter): List<Command.Choice> {
         return getChoices(parameter).mapNotNull { choice ->
             when (choice) {
@@ -33,6 +52,13 @@ object ChoiceHandler {
         }
     }
 
+    /**
+     * Handles regular choices and variable choices
+     *
+     * @param parameter: [KParameter] - Method parameter
+     * @return List<[Any]> - List of data type
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun getChoices(parameter: KParameter): List<Any> {
         val choiceAnnotations = parameter.annotations.filter { annotation ->
             (CHOICES + VARIABLE_CHOICES).keys.map { it.simpleName }.contains(annotation.annotationClass.simpleName)
@@ -56,6 +82,17 @@ object ChoiceHandler {
     }
 
     fun getVariableChoices(annotation: Annotation): List<Any> {
+    /**
+     * Handles variable choice annotations by searching for its corresponding
+     * unit in the customChoiceMap
+     *
+     * **NOTE: ALL VARIABLE CHOICES UNITS MUST BE DEFINED BEFORE COMMAND REGISTRATION**
+     *
+     * @param annotation [Annotation] - Choice annotation
+     * @return List<[Any]> - Result from registered unit
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
+    private fun getVariableChoices(annotation: Annotation): List<Any> {
         val id = when(annotation) {
             is VariableStringChoices -> annotation.id
             is VariableDoubleChoices -> annotation.id

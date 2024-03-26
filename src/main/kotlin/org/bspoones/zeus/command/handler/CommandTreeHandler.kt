@@ -18,20 +18,44 @@ import kotlin.reflect.full.declaredMemberFunctions
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
 
+/**
+ * Responsible for building all command groups, commands, options, and choices
+ *
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 object CommandTreeHandler {
 
+
+    /**
+     * Adds a command clazz to the command tree
+     *
+     * @param clazz [KClass] - Command Object
+     * @see org.bspoones.zeus.command.Command
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun buildCommandTree(clazz: KClass<*>): List<CommandData> {
+        this.logger.info("Building command tree")
         return if (clazz.hasAnnotation<SlashCommandGroup>()) listOf(buildGroup(clazz)) else buildCommands(clazz)
     }
 
+    /**
+     * Adds a command group to the command tree
+     *
+     * @param clazz [KClass] - Command Object
+     * @see org.bspoones.zeus.command.annotations.SlashCommandGroup
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     private fun buildGroup(clazz: KClass<*>): CommandData {
         val group = clazz.findAnnotation<SlashCommandGroup>()
             ?: throw RuntimeException("Parent class building when it shouldn't")
+        this.logger.info("Building ${group.name}")
+
         val commandGroup = Commands.slash(group.name, group.description)
             .setDefaultPermissions(PermissionHandler.buildPermissions(clazz))
             .setNSFW(NsfwHandler.buildNsfw(clazz))
             .setGuildOnly(GuildOnlyHandler.buildGuildOnly(clazz))
 
+        // Nested groups
         val subGroups: MutableList<SubcommandGroupData> = mutableListOf()
         clazz.nestedClasses
             .filter { it.hasAnnotation<SlashCommandGroup>() }
@@ -42,6 +66,7 @@ object CommandTreeHandler {
             commandGroup.addSubcommandGroups(subGroups)
         }
 
+        // Group commands
         val subCommands = buildSubCommands(clazz, group.name)
         if (subCommands.isNotEmpty()) {
             commandGroup.addSubcommands(subCommands)
@@ -50,6 +75,14 @@ object CommandTreeHandler {
         return commandGroup
     }
 
+    /**
+     * Adds a command subgroup to the command tree
+     *
+     * @param clazz [KClass] - Command Object
+     * @param parentName [String] - parent command name. (parent group)
+     * @see org.bspoones.zeus.command.annotations.SlashCommandGroup
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     private fun buildSubGroup(clazz: KClass<*>, parentName: String = ""): SubcommandGroupData {
         val subGroupAnnotation = clazz.findAnnotation<SlashCommandGroup>()
             ?: throw RuntimeException("Failed to find sub group!")
@@ -66,6 +99,14 @@ object CommandTreeHandler {
         return subGroup
     }
 
+    /**
+     * Adds a sub command to the command tree
+     *
+     * @param clazz [KClass] - Command Object
+     * @param parentName [String] - parent command name. (parent group)
+     * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     private fun buildSubCommands(clazz: KClass<*>, parentName: String = ""): List<SubcommandData> {
         val commands: List<SubcommandData> = clazz.declaredMemberFunctions
             .filter { it.hasAnnotation<SlashCommand>() }
@@ -83,6 +124,14 @@ object CommandTreeHandler {
         return commands
     }
 
+    /**
+     * Adds a clazz of commands to the command tree
+     *
+     * @param clazz [KClass] - Command Object
+     * @param parentName [String] - parent command name. (parent group)
+     * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     private fun buildCommands(clazz: KClass<*>, parentName: String = ""): List<CommandData> {
         val commands: MutableList<CommandData> = clazz.declaredMemberFunctions
             .filter { it.hasAnnotation<SlashCommand>() || it.hasAnnotation<MessageCommand>() || it.hasAnnotation<UserContextCommand>() || it.hasAnnotation<MessageContextCommand>() }

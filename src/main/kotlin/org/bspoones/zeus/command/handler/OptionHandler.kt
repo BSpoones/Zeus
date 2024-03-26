@@ -17,12 +17,29 @@ import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaType
 
+/**
+ * Regex constants
+ */
 val USER_PING_REGEX = "<@!?(\\d+)>".toRegex()
 val ROLE_PING_REGEX = "<@&!?(\\d+)>".toRegex()
 val CHANNEL_PING_REGEX = "<#!?(\\d+)>".toRegex()
 val NUMBER_ONLY_REGEX = "\\d+".toRegex()
 
+/**
+ * Command option builder
+ *
+ * @see org.bspoones.zeus.command.annotations.CommandOption
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 object OptionHandler {
+
+    /**
+     * Registers options for slash / message commands
+     *
+     * @param method [KFunction] - Method (Command) being registered
+     * @param commandName [String] - Command name
+     * @see org.bspoones.zeus.command.annotations.CommandOption
+     */
     fun buildOptions(method: KFunction<*>, commandName: String): List<OptionData> {
         val options = mutableListOf<OptionData>()
 
@@ -34,6 +51,10 @@ object OptionHandler {
             val optionData =
                 OptionData(optionType, commandOption.name, commandOption.description, commandOption.isRequired, commandOption.autoComplete)
 
+            /**
+             * JDA doesn't have an easy way of doing this passively, so they have to be added
+             * in different ways
+             */
             if (commandOption.autoComplete) {
                 val optionChoice = CommandRegistry.autoCompleteMap.getOrDefault(commandName, mapOf()).toMutableMap()
                 optionChoice[commandOption.name] = ChoiceHandler.getChoices(parameter)
@@ -42,6 +63,7 @@ object OptionHandler {
                 optionData.addChoices(ChoiceHandler.buildChoices(parameter))
             }
 
+            // Sets channel types if option value is ChannelType
             val channelTypesAnnotation = parameter.findAnnotation<ChannelTypes>()
             if (channelTypesAnnotation != null) {
                 optionData.setChannelTypes(channelTypesAnnotation.channelTypes.toList())
@@ -53,6 +75,15 @@ object OptionHandler {
     }
 
 
+    /**
+     * Registers a message command option via [String] checks
+     *
+     * @param arg [String] - Message command arg
+     * @param parameterType [KType] - Expected parameter type
+     * @param attachment [Attachment] - Message attachment (if any)
+     * @return [Any] - Return value
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun getMessageOption(arg: String, parameterType: KType, attachment: Attachment? = null): Any? {
         return when (parameterType) {
             String::class.java -> arg

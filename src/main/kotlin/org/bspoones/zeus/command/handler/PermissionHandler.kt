@@ -7,12 +7,36 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.findAnnotation
 
+/**
+ * Permission builder for all commands
+ *
+ * Registers command permissions
+ * @see org.bspoones.zeus.command.annotations.permission
+ * @see org.bspoones.zeus.command.annotations.permission
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 object PermissionHandler {
+
+    /**
+     * Command permission builder
+     *
+     * @param method [KFunction] - Method (Command) to set permissions for
+     * @see org.bspoones.zeus.command.annotations.permission
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun buildPermissions(method: KFunction<*>): DefaultMemberPermissions {
         val permission = method.findAnnotation<Permission>()?.permission
         val permissions = method.findAnnotation<Permissions>()?.permissions
         return buildPermissions(permission, permissions)
     }
+
+    /**
+     * Group permission builder
+     *
+     * @param clazz [KClass] - Object (Group) to set permissions for
+     * @see org.bspoones.zeus.command.annotations.permission
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun buildPermissions(clazz: KClass<*>): DefaultMemberPermissions {
         val permission = clazz.findAnnotation<Permission>()?.permission
         val permissions = clazz.findAnnotation<Permissions>()?.permissions
@@ -20,6 +44,16 @@ object PermissionHandler {
     }
 
     private fun buildPermissions(permission: net.dv8tion.jda.api.Permission?, permissions: Array<net.dv8tion.jda.api.Permission>?): DefaultMemberPermissions {
+    /**
+     * Creates a [DefaultMemberPermissions] instance from the annotation permission(s)
+     *
+     * @param permission [JDAPermission] - Single permission, if any
+     * @param permissions Array<[JDAPermission]> - Permission aray, if exists
+     * @return [DefaultMemberPermissions] - Member permissions instance
+     * @see org.bspoones.zeus.command.annotations.permission
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
+    private fun buildPermissions(permission: JDAPermission?, permissions: Array<JDAPermission>?): DefaultMemberPermissions {
         val allPermissions = (permissions ?: emptyArray()).toMutableList()
         permission?.let { allPermissions.add(it) }
         return DefaultMemberPermissions.enabledFor(allPermissions)

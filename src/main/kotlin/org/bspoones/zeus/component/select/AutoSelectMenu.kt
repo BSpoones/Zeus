@@ -8,6 +8,59 @@ import net.dv8tion.jda.api.interactions.components.selections.SelectOption
 import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu
 import org.bspoones.zeus.component.ComponentRegistry
 
+/**
+ * **AutoSelectMenu**
+ *
+ * An easy way to make Discord Select Menu Components!
+ *
+ * ```kotlin
+ * @SlashCommand("name", "description")
+ * fun onCommand(
+ *     event: SlashCommandInteractionEvent
+ * ) {
+ *     val stringSelectMenu = StringOptionBuilder()
+ *         .setCustomId("example")
+ *         .setPlaceholder("placeholder")
+ *         .setMinValues(1)
+ *         .setMaxValues(10)
+ *         .setDisabled(true)
+ *         .setOptions(listOf(SelectOption("name","value"))
+ *         .setOnSelect { event: GenericSelectMenuInteractionEvent
+ *             // Select logic here
+ *         }
+ *         .build()
+ *
+ *     val entitySelectMenu =  EntityOptionBuilder()
+ *         .setCustomId("example")
+ *         .setPlaceholder("placeholder")
+ *         .setMinValues(1)
+ *         .setMaxValues(10)
+ *         .setDisabled(disabled)
+ *         .setSelectTarget(listOf(SelectTarget.CHANNEL)
+ *         .setChannelTypes(listOf(ChannelType.TEXT)) // Not needed if select target is not CHANNEL
+ *         .setOnSelect { event: GenericSelectMenuInteractionEvent
+ *             // Select logic here
+ *         }
+ *         .build()
+ *
+ *     val = MessageCreateBuilder()
+ *         .setContent("Example message")
+ *         .addActionRow(stringSelectMenu.toStringMenu())
+ *         .addActionRow(entitySelectMenu.toEntityMenu())
+ *         .build()
+ *
+ *     event.reply(message).queue()
+ * }
+ * ```
+ * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+ * @see [StringSelectMenu]
+ * @see [EntitySelectMenu]
+ * @see [SelectTarget]
+ * @see [GenericSelectMenuInteractionEvent]
+ * @see [ChannelType]
+ *
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 class AutoSelectMenu(
     private val customId: String,
     private val placeholder: String? = null,
@@ -19,6 +72,29 @@ class AutoSelectMenu(
     private val options: List<SelectOption> = listOf(),
     private val onSelect: ((GenericSelectMenuInteractionEvent<*, *>) -> Unit)? = null
 ) {
+
+    /**
+     * String Option Builder
+     *
+     * ```kotlin
+     * val stringSelectMenu = StringOptionBuilder()
+     *     .setCustomId("example")
+     *     .setPlaceholder("placeholder")
+     *     .setMinValues(1)
+     *     .setMaxValues(10)
+     *     .setDisabled(true)
+     *     .setOptions(listOf(SelectOption("name","value"))
+     *     .setOnSelect { event: GenericSelectMenuInteractionEvent
+     *         // Select logic here
+     *     }
+     *     .build()
+     * ```
+     *
+     * @see [SelectOption]
+     * @see [GenericSelectMenuInteractionEvent]
+     *
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     class StringOptionBuilder {
         private var customId: String = ""
         private var placeholder: String? = null
@@ -53,7 +129,30 @@ class AutoSelectMenu(
         }
     }
 
-
+    /**
+     * Entity Option Builder
+     *
+     * ```kotlin
+     * val entitySelectMenu =  EntityOptionBuilder()
+     *     .setCustomId("example")
+     *     .setPlaceholder("placeholder")
+     *     .setMinValues(1)
+     *     .setMaxValues(10)
+     *     .setDisabled(disabled)
+     *     .setSelectTarget(listOf(SelectTarget.CHANNEL)
+     *     .setChannelTypes(listOf(ChannelType.TEXT)) // Not needed if select target is not CHANNEL
+     *     .setOnSelect { event: GenericSelectMenuInteractionEvent
+     *         // Select logic here
+     *     }
+     *     .build()
+     * ```
+     *
+     * @see [SelectTarget]
+     * @see [ChannelType]
+     * @see [GenericSelectMenuInteractionEvent]
+     *
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     class EntityOptionBuilder() {
         private var customId: String = ""
         private var placeholder: String? = null
@@ -73,6 +172,15 @@ class AutoSelectMenu(
         fun selectTarget(selectTarget: List<SelectTarget>) = apply { this.selectTarget = selectTarget }
         fun channelTypes(channelTypes: List<ChannelType>) = apply { this.channelTypes = channelTypes }
         fun onSelect(onSelect: (GenericSelectMenuInteractionEvent<*, *>) -> Unit) = apply { this.onSelect = onSelect }
+        fun setCustomId(customId: String) = apply { this.customId = customId }
+        fun setPlaceholder(placeholder: String) = apply { this.placeholder = placeholder }
+        fun setMinValues(minValues: Int) = apply { this.minValues = minValues }
+        fun setMaxValues(maxValues: Int) = apply { this.maxValues = maxValues }
+        fun setDisabled(disabled: Boolean) = apply { this.disabled = disabled }
+        fun setSelectTarget(selectTarget: SelectTarget) = apply { this.selectTarget = listOf(selectTarget) }
+        fun setSelectTarget(selectTarget: List<SelectTarget>) = apply { this.selectTarget = selectTarget }
+        fun setChannelTypes(channelTypes: List<ChannelType>) = apply { this.channelTypes = channelTypes }
+        fun setOnSelect(onSelect: (GenericSelectMenuInteractionEvent<*, *>) -> Unit) = apply { this.onSelect = onSelect }
 
         fun build(): AutoSelectMenu {
             if (onSelect != null) {
@@ -93,6 +201,12 @@ class AutoSelectMenu(
     }
 
 
+    /**
+     * Converts the AutoSelectMenu instance to a StringSelectMenu.
+     *
+     * @return A StringSelectMenu instance configured with the properties of the AutoSelectMenu.
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun toStringMenu(): StringSelectMenu {
         return StringSelectMenu.create(customId)
             .setPlaceholder(placeholder)
@@ -103,6 +217,12 @@ class AutoSelectMenu(
             .build()
     }
 
+    /**
+     * Converts the AutoSelectMenu instance to an EntitySelectMenu.
+     *
+     * @return An EntitySelectMenu instance configured with the properties of the AutoSelectMenu.
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun toEntityMenu(): EntitySelectMenu {
         return EntitySelectMenu.create(customId, selectTarget)
             .setPlaceholder(placeholder)

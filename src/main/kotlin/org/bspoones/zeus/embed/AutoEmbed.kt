@@ -4,9 +4,64 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
+import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import java.awt.Color
+import java.time.LocalTime
 import java.time.temporal.TemporalAccessor
 
+/**
+ * **AutoEmbed**
+ *
+ * An easy way to make Discord Embeds!
+ *
+ * ```kotlin
+ * @SlashCommand("name", "description")
+ * fun onCommand(
+ *     event: SlashCommandInteractionEvent
+ * ) {
+ *     // Note: Combinations of these should be used
+ *     val embed = AutoEmbed.Builder()
+ *         .setEmbedType(EmbedType.FULL_CUSTOM)
+ *         .setTitle("Title")
+ *         .setTitleUrl("https://www.bspoones.com/"
+ *         .setDescription("Description"
+ *         .setFields(listOf(AutoEmbedField())
+ *         .setColor(Color.RED)
+ *         .setAuthor(AutoEmbedAuthor)
+ *         .setFooter(AutoEmbedFooter)
+ *         .setThumbnailUrl("IMAGE LINK")
+ *         .setImageUrl("IMAGE LINK")
+ *         .setTimeStamp(LocalTime.Now()) // Default
+ *         .setSenderUser(event.user) // Not required
+ *         .setSenderMember(event.member) // Not required
+ *
+ *         .setCustomId("example")
+ *         .setTitle("Example Title")
+ *         .setInputs(listOf(AutoModalInput())
+ *         .setOnSubmit { event: ModalInteractionEvent ->
+ *             // Submit behaviour here
+ *         }
+ *         .build()
+ *     val = MessageCreateBuilder()
+ *         .setEmbeds(embed.toEmbed())
+ *         .addActionRow(button.toButton())
+ *         .build()
+ *
+ *     event.reply(message).queue()
+ *
+ *     // OR
+ *     event.reply(embed.toMessageCreateData())
+ * }
+ * ```
+ * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+ * @see [MessageEmbed]
+ * @see [Color]
+ * @see [EmbedType]
+ * @see [MessageCreateBuilder]
+ *
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 class AutoEmbed(
     val embedType: EmbedType,
     val senderUser: User?,
@@ -23,7 +78,33 @@ class AutoEmbed(
     val timestamp: TemporalAccessor?
 ) {
 
-
+    /**
+     * AutoEmbed Builder
+     *
+     * ```kotlin
+     * val embed = AutoEmbed.Builder()
+     *         .setEmbedType(EmbedType.FULL_CUSTOM)
+     *         .setTitle("Title")
+     *         .setTitleUrl("https://www.bspoones.com/"
+     *         .setDescription("Description"
+     *         .setFields(listOf(AutoEmbedField())
+     *         .setColor(Color.RED)
+     *         .setAuthor(AutoEmbedAuthor)
+     *         .setFooter(AutoEmbedFooter)
+     *         .setThumbnailUrl("IMAGE LINK")
+     *         .setImageUrl("IMAGE LINK")
+     *         .setTimeStamp(LocalTime.Now()) // Default
+     *         .setSenderUser(event.user) // Not required
+     *         .setSenderMember(event.member) // Not required
+     *         .build()
+     * ```
+     *
+     * @see [MessageEmbed]
+     * @see [Color]
+     * @see [EmbedType]
+     *
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     class Builder {
         private var embedType: EmbedType = EmbedType.FULL_CUSTOM
         private var senderUser: User? = null
@@ -70,25 +151,19 @@ class AutoEmbed(
             }
 
             return AutoEmbed(
-                embedType,
-                senderUser,
-                senderMember,
-                title,
-                titleUrl,
-                description,
-                fields,
-                color,
-                author,
-                footer,
-                thumbnailUrl,
-                imageUrl,
-                timestamp,
+                embedType, senderUser, senderMember, title, titleUrl, description,
+                fields, color, author, footer, thumbnailUrl, imageUrl, timestamp
             )
         }
-
-
     }
 
+
+    /**
+     * Converts the AutoEmbed instance to a MessageEmbed.
+     *
+     * @return A MessageEmbed instance configured with the properties of the AutoEmbed.
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun toEmbed(): MessageEmbed {
         val embed = EmbedBuilder()
             .setTitle(title)
@@ -99,12 +174,8 @@ class AutoEmbed(
             .setImage(imageUrl)
             .setTimestamp(timestamp)
 
-        if (author != null) {
-            embed.setAuthor(author.name, author.url, author.iconUrl)
-        }
-        if (footer != null) {
-            embed.setFooter(footer.text, footer.iconUrl)
-        }
+        author?.let { embed.setAuthor(it.name, it.url, it.iconUrl) }
+        footer?.let { embed.setFooter(it.text, it.iconUrl) }
 
         fields?.forEach { field ->
             embed.addField(field.name, field.value, field.inline)
@@ -112,4 +183,28 @@ class AutoEmbed(
 
         return embed.build()
     }
+
+    /**
+     * Converts the AutoEmbed instance to a MessageCreateBuilder.
+     *
+     * @return A MessageCreateBuilder instance configured with the embed of the AutoEmbed.
+     * @see [toEmbed]
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
+    fun toMessageCreateBuilder() : MessageCreateBuilder {
+        return MessageCreateBuilder()
+            .setEmbeds(toEmbed())
+    }
+
+    /**
+     * Converts the AutoEmbed instance to a MessageCreateData.
+     *
+     * @return A MessageCreateData instance configured with the embed of the AutoEmbed.
+     * @see [toMessageCreateBuilder]
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
+    fun toMessageCreateData() : MessageCreateData {
+        return toMessageCreateBuilder().build()
+    }
+
 }

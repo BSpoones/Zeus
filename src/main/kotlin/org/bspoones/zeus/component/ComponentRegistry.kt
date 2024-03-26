@@ -7,6 +7,11 @@ import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInterac
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+/**
+ * **Component Registry**
+ *
+ * Responsible for registration of all components
+ */
 object ComponentRegistry {
 
     private val logger: Logger = LoggerFactory.getLogger("Zeus | Component Handler")
@@ -18,6 +23,18 @@ object ComponentRegistry {
     val stringSelectMap: MutableMap<String, (GenericSelectMenuInteractionEvent<*, *>) -> Unit> = mutableMapOf()
     val entitySelectMap: MutableMap<String, (GenericSelectMenuInteractionEvent<*, *>) -> Unit> = mutableMapOf()
 
+    /**
+     * Set up the Component Registry
+     *
+     * This **should** be done within Zeus itself, so you don't have to worry!
+     *
+     * @param api [JDA] - Discord bot instance
+     *
+     * @see JDA
+     * @see org.bspoones.zeus.component
+     *
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun setup(api: JDA) {
         this.api = api
 

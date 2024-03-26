@@ -12,6 +12,12 @@ import kotlin.reflect.KClass
 import kotlin.reflect.KFunction
 import kotlin.reflect.full.hasAnnotation
 
+/**
+ * Determining if an object or method is NSFW
+ *
+ * @see org.bspoones.zeus.command.annotations.NSFW
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 object NsfwHandler {
     fun buildNsfw(method: KFunction<*>): Boolean {
         return method.hasAnnotation<NSFW>()
@@ -21,6 +27,15 @@ object NsfwHandler {
         return clazz.hasAnnotation<NSFW>()
     }
 
+    /**
+     * Checks if a NSFW command should run
+     *
+     * @param method [KFunction] - Method (Command) in question
+     * @param channel [Channel] - Discord channel the command is being run in
+     *
+     * @return [Boolean] - True if command should not run
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun isNsfw(method: KFunction<*>, channel: Channel): Boolean {
         val nsfwChannel = when (channel.type) {
             ChannelType.TEXT -> (channel as TextChannel).isNSFW
@@ -32,6 +47,16 @@ object NsfwHandler {
         return !nsfwChannel && method.hasAnnotation<NSFW>()
     }
 
+    /**
+     * Checks if message command is NSFW
+     *
+     * @param method [KFunction] - Method (Command) in question
+     * @param event [MessageReceivedEvent] - Message command event, already checked
+     * @see org.bspoones.zeus.command.Command.onMessageReceived
+     *
+     * @return [Boolean] - True if command should not run
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun nsfwCheck(method: KFunction<*>, event: MessageReceivedEvent): Boolean {
         if (isNsfw(method, event.channel)) {
             event.channel.sendMessage("<@${event.author.id}> you cannot use an NSFW command in this channel!").setMessageReference(event.messageId).queue()
@@ -40,6 +65,17 @@ object NsfwHandler {
         return false
     }
 
+    /**
+     * Checks if context command is NSFW
+     *
+     * @param method [KFunction] - Method (Command) in question
+     * @param event [GenericCommandInteractionEvent] - Context interaction event
+     * @see org.bspoones.zeus.command.Command.onUserContextInteraction
+     * @see org.bspoones.zeus.command.Command.onMessageContextInteraction
+     *
+     * @return [Boolean] - True if command should not run
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     fun nsfwCheck(method: KFunction<*>, event: GenericCommandInteractionEvent) : Boolean{
         if (event.channel == null) return false
 

@@ -16,12 +16,50 @@ import org.bspoones.zeus.extensions.getOptionValue
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.jvm.javaMethod
 
+/**
+ * Command class
+ *
+ * Open class used to register all groups, commands, options, and choices
+ * within an object, including the object itself as well as run them
+ *
+ * ```kotlin
+ * object MyCommand: Command() {
+ *     @SlashCommand("name","description")
+ *     fun onName(
+ *         event: SlashCommandInteractionEvent
+ *     )
+ * }
+ * ```
+ *
+ * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+ * @see org.bspoones.zeus.command.annotations.command.MessageCommand
+ * @see org.bspoones.zeus.command.annotations.command.context.UserContextCommand
+ * @see org.bspoones.zeus.command.annotations.command.context.MessageContextCommand
+ *
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 open class Command : ListenerAdapter() {
 
+    /**
+     * Slash command interaction listener
+     *
+     * Finds a slash command method in the command forest by the fullCommandName
+     * If present, it calls the command
+     *
+     * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
         val function = CommandForest.getFunction(CommandType.SLASH, event.fullCommandName) ?: return
-        if (NsfwHandler.nsfwCheck(function, event)) return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
+
+        if (NsfwHandler.nsfwCheck(function, event)) return
+
+        /**
+         * Option handler
+         *
+         * @author <a href="https://www.bspoones.com">BSpoones</a>
+         */
         val args = mutableListOf<Any>()
         function.parameters.forEach { parameter ->
             val optionAnnotation = parameter.findAnnotation<CommandOption>() ?: return@forEach
@@ -36,13 +74,31 @@ open class Command : ListenerAdapter() {
         return
     }
 
+    /**
+     * User context command interaction listener
+     *
+     * Finds a user context method in the command forest by the fullCommandName
+     * If present, it calls the command
+     *
+     * @see org.bspoones.zeus.command.annotations.command.context.UserContextCommand
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     override fun onUserContextInteraction(event: UserContextInteractionEvent) {
         val function = CommandForest.getFunction(CommandType.USER_CONTEXT, event.fullCommandName) ?: return
-        if (NsfwHandler.nsfwCheck(function, event)) return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
+        if (NsfwHandler.nsfwCheck(function, event)) return
         function.call(functionObj, event)
     }
 
+    /**
+     * Message context command interaction listener
+     *
+     * Finds a message context method in the command forest by the fullCommandName
+     * If present, it calls the command
+     *
+     * @see org.bspoones.zeus.command.annotations.command.context.MessageContextCommand
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     override fun onMessageContextInteraction(event: MessageContextInteractionEvent) {
         val function = CommandForest.getFunction(CommandType.MESSAGE_CONTEXT, event.fullCommandName) ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
@@ -50,6 +106,17 @@ open class Command : ListenerAdapter() {
         function.call(functionObj, event)
     }
 
+    /**
+     * Message command interaction listener
+     *
+     * Finds a user context method in the command forest by the fullCommandName
+     * If present, it calls the command
+     *
+     * **NOTE: There are still some issues with default values**
+     *
+     * @see org.bspoones.zeus.command.annotations.command.MessageCommand
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
         val content = event.message.contentRaw
@@ -61,6 +128,7 @@ open class Command : ListenerAdapter() {
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
 
+        // Drops event
         val args: MutableList<String?> = contentArgs.drop(1).toMutableList()
         val funcArgs = mutableListOf<Any>()
 
@@ -78,6 +146,11 @@ open class Command : ListenerAdapter() {
             }
             if (value == null && parameter.isOptional) return@forEachIndexed
 
+            /**
+             * Option handling
+             *
+             * @see org.bspoones.zeus.command.handler.OptionHandler
+             */
             val optionValue = OptionHandler.getMessageOption(
                 value!!,
                 parameter.type,
@@ -90,6 +163,7 @@ open class Command : ListenerAdapter() {
             funcArgs.add(optionValue)
         }
 
+        // Argument size check - Ensures all required options are given
         val minSize = function.parameters.size - 2 - function.parameters.filter { it.isOptional }.size
 
         if (args.size < minSize) {
@@ -103,6 +177,15 @@ open class Command : ListenerAdapter() {
 
     }
 
+    /**
+     * AutoComplete handler
+     *
+     * Handles AutoComplete interactions by finding the command parameter's autocomplete data, if present
+     *
+     * @see org.bspoones.zeus.command.handler.OptionHandler.getMessageOption
+     * @author <a href="https://www.bspoones.com">BSpoones</a>
+     */
+    @Suppress("UNCHECKED_CAST")
     override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
         val options = CommandRegistry.autoCompleteMap[event.fullCommandName] ?: return
         var choices = options[event.focusedOption.name] ?: return

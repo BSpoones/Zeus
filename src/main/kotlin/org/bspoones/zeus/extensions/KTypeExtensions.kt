@@ -9,6 +9,17 @@ import net.dv8tion.jda.api.interactions.commands.OptionType
 import kotlin.reflect.KType
 import kotlin.reflect.jvm.javaType
 
+/**
+ * Determines the OptionType corresponding to the KType.
+ *
+ * This function maps common Java types to their corresponding OptionType enum constants.
+ * Supported types include STRING, INTEGER, BOOLEAN, NUMBER, USER, CHANNEL, ROLE, MENTIONABLE, and ATTACHMENT.
+ * If no match is found, it returns null.
+ *
+ * @return The OptionType corresponding to the Java type of the KType, or null if no match is found.
+ * @see OptionType
+ * @author <a href="https://www.bspoones.com">BSpoones</a>
+ */
 fun KType.optionType(): OptionType? = when (this.javaType) {
     String::class.java -> OptionType.STRING
     Int::class.java -> OptionType.INTEGER
