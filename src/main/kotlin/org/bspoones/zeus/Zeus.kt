@@ -60,6 +60,7 @@ object Zeus {
 
         setupListeners()
 
+        this.isSetup = true
     }
 
 
