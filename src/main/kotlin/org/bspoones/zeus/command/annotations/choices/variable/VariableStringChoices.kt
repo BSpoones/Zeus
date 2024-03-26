@@ -1,6 +1,5 @@
 package org.bspoones.zeus.command.annotations.choices.variable
 
-@Retention(AnnotationRetention.SOURCE)
 /**
  * Register a list of strings via a Unit result.
  *
