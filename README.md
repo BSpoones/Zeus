@@ -28,10 +28,10 @@ Zeus.setup(
     api = jda,
     globalMessagePrefix = "!",
     prefixGuildMap = mutableMapOf(
-        11111111 to "."
+        GUILD_ID_HERE to "."
     ),
     guilds = listOf(
-        11111111
+        GUILD_ID_HERE
     )
 )
 ```
@@ -45,7 +45,48 @@ Let's break that down:
 
 ## Commands
 
+Zeus creates and registers commands via objects and annotations (`@Annotation`). To create a command, you must create an object and inherrit from `Command`:
+
+```kotlin
+import org.bspoones.zeus.command.Command
+
+object MyCommand: Command() {}
+```
+
+### Registering commands
+
+Once you have created your command object, head over to your main bot declaration class and add the object to the command registry:
+
+```kotlin
+// See setup guide above
+
+CommandRegistry.registerCommands(
+    MyCommand::class,
+    guildOnly = true
+)
+```
+
+Let's break that down:
+- `MyCommand::class` class of your command, this is a `vararg` input so you can add as many command objects as you want, seperated by a comma (`,`)
+- `guildOnly` default to `false`, this will decide if all commands you make are guild-only (they will register at a guild level). This is really useful for personal bots or for testing purposes, as commands are registered instantly. Set to `false` (or don't set it at all) to register all commands globally. This may take a few minutes to register.
+
 ### Creating a Slash Command
+
+Slash commands are registered via the `@SlashCommand` annotation. This will register and map the function to a slash command:
+
+```kotlin
+object MyCommand: Command() {
+    
+    @SlashCommand("ping","Send a pong to the chat")
+    fun onNameCommand(
+        event: SlashCommandInteractionEvent
+    ) {
+        event.reply("Pong!").queue()
+    }
+}
+```
+
+
 
 ### Creating a Message Command
 
@@ -55,7 +96,21 @@ Let's break that down:
 
 ### Creating a Slash Command Group
 
-### Registering commands
+### GuildOnly
+
+### NSFW
+
+### Command Choices
+
+#### StringChoice
+#### DoubleChoice
+#### LongChoice
+
+### Variable Command Choices
+
+#### VariableStringChoice
+#### VariableDoubleChoice
+#### VariableLongChoice
 
 ## Components
 
