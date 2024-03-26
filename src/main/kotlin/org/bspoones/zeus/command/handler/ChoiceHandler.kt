@@ -7,7 +7,6 @@ import org.bspoones.zeus.command.annotations.choices.*
 import org.bspoones.zeus.command.annotations.choices.variable.*
 import kotlin.reflect.KClass
 import kotlin.reflect.KParameter
-import kotlin.reflect.full.hasAnnotation
 
 /**
  * Registers command options for all parameters with @Choice annotations
@@ -25,10 +24,7 @@ object ChoiceHandler {
         StringChoices::class to String::class,
         LongChoices::class to Int::class,
         DoubleChoices::class to Float::class,
-        ChannelTypes::class to Channel::class
-    )
-
-    private val VARIABLE_CHOICES = mapOf(
+        ChannelTypes::class to Channel::class,
         VariableStringChoices::class to String::class,
         VariableLongChoices::class to Int::class,
         VariableDoubleChoices::class to Float::class,
@@ -61,13 +57,13 @@ object ChoiceHandler {
      */
     fun getChoices(parameter: KParameter): List<Any> {
         val choiceAnnotations = parameter.annotations.filter { annotation ->
-            (CHOICES + VARIABLE_CHOICES).keys.map { it.simpleName }.contains(annotation.annotationClass.simpleName)
+            (CHOICES.keys.map { it.simpleName }).contains(annotation.annotationClass.simpleName)
         }
 
-        if (choiceAnnotations.isEmpty()) return listOf()
+        if (choiceAnnotations.isEmpty()) return listOf() // Command has no choices
         if (choiceAnnotations.size > 1) throw IllegalArgumentException("You can only have one choice type")
 
-        if (parameter.type::class != (CHOICES + VARIABLE_CHOICES)[choiceAnnotations.first().annotationClass])
+        if (parameter.type.classifier as? KClass<*> != (CHOICES)[choiceAnnotations.first().annotationClass])
             throw IllegalArgumentException("A parameter choice must be of the same type as the parameter")
 
         return when (val annotation = choiceAnnotations.first()) {
@@ -81,7 +77,6 @@ object ChoiceHandler {
         }
     }
 
-    fun getVariableChoices(annotation: Annotation): List<Any> {
     /**
      * Handles variable choice annotations by searching for its corresponding
      * unit in the customChoiceMap
@@ -100,9 +95,10 @@ object ChoiceHandler {
             else -> throw IllegalArgumentException("Invalid annotation type")
         }
 
-        val result: Any = CommandRegistry.getVariableChoice(id).invoke()
+        val result = CommandRegistry.getVariableChoice(id).invoke()
+
         return when {
-            result is List<*> -> result.filterIsInstance<Any>()
+            result is List<*> -> result.toList()
             else -> throw IllegalArgumentException("Variable method must return a List")
         }
     }
