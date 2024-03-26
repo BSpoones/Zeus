@@ -43,7 +43,6 @@ object ComponentListener: ListenerAdapter() {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     override fun onGenericSelectMenuInteraction(event: GenericSelectMenuInteractionEvent<*,*>) {
-        println("SELECT MENU INTERACTION")
         if (event.component.type == Component.Type.STRING_SELECT) {
             val unit = ComponentRegistry.stringSelectMap[event.componentId] ?: return
             unit.invoke(event)
