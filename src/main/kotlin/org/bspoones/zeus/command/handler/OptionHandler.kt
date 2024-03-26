@@ -5,17 +5,16 @@ import net.dv8tion.jda.api.entities.Message.Attachment
 import net.dv8tion.jda.api.entities.Role
 import net.dv8tion.jda.api.entities.User
 import net.dv8tion.jda.api.entities.channel.Channel
-import net.dv8tion.jda.api.interactions.commands.OptionMapping
-import net.dv8tion.jda.api.interactions.commands.OptionType
 import net.dv8tion.jda.api.interactions.commands.build.OptionData
 import org.bspoones.zeus.command.annotations.CommandOption
 import org.bspoones.zeus.command.annotations.choices.ChannelTypes
 import org.bspoones.zeus.command.CommandRegistry
 import org.bspoones.zeus.extensions.optionType
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory.getLogger
 import kotlin.reflect.KFunction
 import kotlin.reflect.KType
 import kotlin.reflect.full.findAnnotation
-import kotlin.reflect.jvm.javaType
 
 /**
  * Regex constants
@@ -32,6 +31,7 @@ val NUMBER_ONLY_REGEX = "\\d+".toRegex()
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 object OptionHandler {
+    private val logger: Logger = getLogger("Zeus | Option Handler")
 
     /**
      * Registers options for slash / message commands
@@ -41,6 +41,7 @@ object OptionHandler {
      * @see org.bspoones.zeus.command.annotations.CommandOption
      */
     fun buildOptions(method: KFunction<*>, commandName: String): List<OptionData> {
+        this.logger.debug("Building options for $commandName")
         val options = mutableListOf<OptionData>()
 
         method.parameters.forEach { parameter ->
