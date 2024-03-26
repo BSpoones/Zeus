@@ -76,7 +76,7 @@ object CommandForest {
         }
         // Function presence check
         if (leaves.filter { it.type == type }.map { it.function }.contains(function)) {
-            throw IllegalArgumentException("Function already registered as a ${type.typeName}")
+            throw IllegalArgumentException("Function has already been registered elsewhere as a ${type.typeName}")
         }
 
         leaves.add(
