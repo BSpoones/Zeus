@@ -101,8 +101,8 @@ open class Command : ListenerAdapter() {
      */
     override fun onMessageContextInteraction(event: MessageContextInteractionEvent) {
         val function = CommandForest.getFunction(CommandType.MESSAGE_CONTEXT, event.fullCommandName) ?: return
-        if (NsfwHandler.nsfwCheck(function, event)) return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
+        if (NsfwHandler.nsfwCheck(function, event)) return
         function.call(functionObj, event)
     }
 
@@ -124,6 +124,7 @@ open class Command : ListenerAdapter() {
 
         val contentArgs = content.split(" ").filter { it != "" }
         val commandName = contentArgs.first().substring(1)
+
         val function = CommandForest.getFunction(CommandType.MESSAGE, commandName) ?: return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
@@ -132,19 +133,19 @@ open class Command : ListenerAdapter() {
         val args: MutableList<String?> = contentArgs.drop(1).toMutableList()
         val funcArgs = mutableListOf<Any>()
 
-        var attachmentIndex = 0
+        var attachmentIndex = 0 // Ensures attachments are added correctly
         function.parameters.drop(1).forEachIndexed { index, parameter ->
             val optionAnnotation = parameter.findAnnotation<CommandOption>() ?: return@forEachIndexed
 
             if (parameter.type::class.java == Attachment::class.java) attachmentIndex += 1
 
             val value = args.getOrNull(index - 1)
+            if (value == null && parameter.isOptional) return@forEachIndexed
             if (value == null && !parameter.isOptional) {
                 event.channel.sendMessage("<@${event.author.id}> Argument not provided: ${optionAnnotation.name}")
                     .setMessageReference(event.messageId).queue()
                 return
             }
-            if (value == null && parameter.isOptional) return@forEachIndexed
 
             /**
              * Option handling
@@ -165,12 +166,12 @@ open class Command : ListenerAdapter() {
 
         // Argument size check - Ensures all required options are given
         val minSize = function.parameters.size - 2 - function.parameters.filter { it.isOptional }.size
-
         if (args.size < minSize) {
             event.channel.sendMessage("<@${event.author.id}> Invalid arguments: ${args.joinToString(" ")}")
                 .setMessageReference(event.messageId).queue()
             return
         }
+        // TODO -> Make this work
 //        args.addAll(List(function.parameters.filter { it.isOptional }.size - args.size) { null })
         function.call(functionObj, event, *args.toTypedArray())
         return
