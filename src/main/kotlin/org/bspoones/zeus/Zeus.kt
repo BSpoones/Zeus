@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.JDA
 import org.bspoones.zeus.command.Command
 import org.bspoones.zeus.command.CommandRegistry
 import org.bspoones.zeus.component.ComponentRegistry
-import kotlin.reflect.KClass
+import org.bspoones.zeus.message.MessageUtils
 
 /**
  * **Zeus**
@@ -56,6 +56,7 @@ object Zeus {
             this.guilds
         )
         ComponentRegistry.setup(this.api)
+        MessageUtils.setup(this.api)
 
         setupListeners()
 
