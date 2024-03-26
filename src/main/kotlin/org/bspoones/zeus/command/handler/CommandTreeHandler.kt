@@ -175,12 +175,11 @@ object CommandTreeHandler {
                 listOfNotNull(slashCommand, messageCommand, userContextCommand, messageContextCommand)
             }.toMutableList()
 
-        // Command group
-        clazz.nestedClasses.forEach {
-            if (!it.hasAnnotation<SlashCommandGroup>()) return@forEach
-            commands.add(buildGroup(it))
+        // Support for a non-group parent object that has child object groups
+        clazz.nestedClasses.forEach {nestedClass ->
+            if (!nestedClass.hasAnnotation<SlashCommandGroup>()) return@forEach
+            commands.add(buildGroup(nestedClass))
         }
-
         return commands
     }
 
