@@ -64,8 +64,8 @@ import java.time.temporal.TemporalAccessor
  */
 class AutoEmbed(
     val embedType: EmbedType,
-    val senderUser: User?,
-    val senderMember: Member?,
+    val user: User?,
+    val member: Member?,
     val title: String?,
     val titleUrl: String?,
     val description: String?,
@@ -75,7 +75,7 @@ class AutoEmbed(
     val footer: AutoEmbedFooter?,
     val thumbnailUrl: String?,
     val imageUrl: String?,
-    val timestamp: TemporalAccessor?
+    val timestamp: TemporalAccessor? = LocalTime.now()
 ) {
 
     /**
@@ -120,8 +120,8 @@ class AutoEmbed(
         private var imageUrl: String? = null
         private var timestamp: TemporalAccessor? = null
 
-        fun embedType(embedType: EmbedType) = apply { this.embedType = embedType }
-        fun embedType(embedType: String) = apply {
+        fun setEmbedType(embedType: EmbedType) = apply { this.embedType = embedType }
+        fun setEmbedType(embedType: String) = apply {
             this.embedType =
                 EmbedType.values().find { it.name == embedType.uppercase() } ?: throw IllegalArgumentException(
                     "Invalid embed type. Please choose from ${
@@ -130,18 +130,18 @@ class AutoEmbed(
                 )
         }
 
-        fun title(title: String) = apply { this.title = title }
-        fun titleUrl(titleUrl: String) = apply { this.titleUrl = titleUrl }
-        fun description(description: String) = apply { this.description = description }
-        fun fields(fields: List<AutoEmbedField>) = apply { this.fields = fields }
-        fun color(color: Color) = apply { this.color = color }
-        fun author(author: AutoEmbedAuthor) = apply { this.author = author }
-        fun footer(footer: AutoEmbedFooter) = apply { this.footer = footer }
-        fun thumbnailUrl(thumbnailUrl: String) = apply { this.thumbnailUrl = thumbnailUrl }
-        fun imageUrl(imageUrl: String) = apply { this.imageUrl = imageUrl }
-        fun timestamp(timestamp: TemporalAccessor) = apply { this.timestamp = timestamp }
-        fun senderUser(sender: User) = apply { this.senderUser = sender }
-        fun senderMember(sender: Member) = apply { this.senderMember = sender }
+        fun setTitle(title: String?) = apply { this.title = title }
+        fun setTitleUrl(titleUrl: String?) = apply { this.titleUrl = titleUrl }
+        fun setDescription(description: String?) = apply { this.description = description }
+        fun setFields(fields: List<AutoEmbedField>?) = apply { this.fields = fields }
+        fun setColor(color: Color?) = apply { this.color = color }
+        fun setAuthor(author: AutoEmbedAuthor?) = apply { this.author = author }
+        fun setFooter(footer: AutoEmbedFooter?) = apply { this.footer = footer }
+        fun setThumbnailUrl(thumbnailUrl: String?) = apply { this.thumbnailUrl = thumbnailUrl }
+        fun setImageUrl(imageUrl: String?) = apply { this.imageUrl = imageUrl }
+        fun setTimestamp(timestamp: TemporalAccessor?) = apply { this.timestamp = timestamp }
+        fun setSenderUser(sender: User?) = apply { this.senderUser = sender }
+        fun setSenderMember(sender: Member?) = apply { this.senderMember = sender }
 
         fun build(): AutoEmbed {
             if (embedType == EmbedType.CONTEXT) {
