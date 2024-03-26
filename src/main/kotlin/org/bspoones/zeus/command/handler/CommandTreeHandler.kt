@@ -12,6 +12,8 @@ import org.bspoones.zeus.command.annotations.command.context.MessageContextComma
 import org.bspoones.zeus.command.annotations.command.context.UserContextCommand
 import org.bspoones.zeus.command.enums.CommandType
 import org.bspoones.zeus.command.tree.CommandForest
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory.getLogger
 import java.lang.RuntimeException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberFunctions
@@ -24,7 +26,7 @@ import kotlin.reflect.full.hasAnnotation
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 object CommandTreeHandler {
-
+    private val logger: Logger = getLogger("Zeus | Command Tree Handler")
 
     /**
      * Adds a command clazz to the command tree
@@ -84,14 +86,17 @@ object CommandTreeHandler {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     private fun buildSubGroup(clazz: KClass<*>, parentName: String = ""): SubcommandGroupData {
-        val subGroupAnnotation = clazz.findAnnotation<SlashCommandGroup>()
+        val sgAnnotation = clazz.findAnnotation<SlashCommandGroup>()
             ?: throw RuntimeException("Failed to find sub group!")
-        val subGroup = SubcommandGroupData(
-            subGroupAnnotation.name,
-            subGroupAnnotation.description
-        )
+        this.logger.info("Building Sub Group ${sgAnnotation.name}")
 
-        val subCommands = buildSubCommands(clazz, "${if (parentName.isNotBlank()) "$parentName " else ""}${subGroupAnnotation.name}")
+        val subGroup = SubcommandGroupData(sgAnnotation.name, sgAnnotation.description)
+
+        // Adding sub commands
+        val subCommands = buildSubCommands(
+            clazz,
+            "${if (parentName.isNotBlank()) "$parentName " else ""}${sgAnnotation.name}"
+        )
         if (subCommands.isNotEmpty()) {
             subGroup.addSubcommands(subCommands)
         }
@@ -113,6 +118,7 @@ object CommandTreeHandler {
             .flatMap { method ->
                 val slashCommand = method.findAnnotation<SlashCommand>()?.let {
                     val commandName = "${if (parentName.isNotBlank()) "$parentName " else ""}${it.name}"
+                    this.logger.info("Building Sub Command $commandName")
                     CommandForest.addLeaf(CommandType.SLASH, commandName, method)
                     SubcommandData(it.name, it.description)
                         .addOptions(OptionHandler.buildOptions(method, commandName))
@@ -139,6 +145,7 @@ object CommandTreeHandler {
                 val slashCommand = method.findAnnotation<SlashCommand>()?.let {
                     val commandName = "${if (parentName.isNotBlank()) "$parentName " else ""}${it.name}"
                     CommandForest.addLeaf(CommandType.SLASH, commandName, method)
+                    this.logger.info("Building Slash Command $commandName")
                     Commands.slash(it.name, it.description)
                         .addOptions(OptionHandler.buildOptions(method, commandName))
                         .setDefaultPermissions(PermissionHandler.buildPermissions(method))
@@ -146,15 +153,18 @@ object CommandTreeHandler {
                         .setGuildOnly(GuildOnlyHandler.buildGuildOnly(method))
                 }
                 val messageCommand = method.findAnnotation<MessageCommand>()?.let {
+                    this.logger.info("Building Slash Command ${it.name}")
                     CommandForest.addLeaf(CommandType.MESSAGE, it.name, method)
                     null // Message commands are handled internally
                 }
 
-                val userContextCommand= method.findAnnotation<UserContextCommand>()?.let {
+                val userContextCommand = method.findAnnotation<UserContextCommand>()?.let {
+                    this.logger.info("Building User Context Command ${it.name}")
                     CommandForest.addLeaf(CommandType.USER_CONTEXT, it.name, method)
                     Commands.context(Command.Type.USER, it.name)
                 }
-                val messageContextCommand= method.findAnnotation<MessageContextCommand>()?.let {
+                val messageContextCommand = method.findAnnotation<MessageContextCommand>()?.let {
+                    this.logger.info("Building Message Context Command ${it.name}")
                     CommandForest.addLeaf(CommandType.MESSAGE_CONTEXT, it.name, method)
                     Commands.context(Command.Type.MESSAGE, it.name)
                         .setDefaultPermissions(PermissionHandler.buildPermissions(method))
