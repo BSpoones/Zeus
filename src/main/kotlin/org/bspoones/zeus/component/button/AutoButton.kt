@@ -76,12 +76,12 @@ class AutoButton private constructor(
         private var emoji: Emoji? = null
         private var onClick: ((ButtonInteractionEvent) -> Unit)? = null
 
-        fun buttonStyle(buttonStyle: ButtonStyle) = apply { this.buttonStyle = buttonStyle }
-        fun customId(customId: String) = apply { this.customId = customId }
-        fun label(label: String) = apply { this.label = label }
-        fun disabled(disabled: Boolean) = apply { this.disabled = disabled }
-        fun emoji(emoji: Emoji?) = apply { this.emoji = emoji }
-        fun onClick(onClick: ((ButtonInteractionEvent) -> Unit)?) = apply { this.onClick = onClick }
+        fun setButtonStyle(buttonStyle: ButtonStyle) = apply { this.buttonStyle = buttonStyle }
+        fun setCustomId(customId: String) = apply { this.customId = customId }
+        fun setLabel(label: String) = apply { this.label = label }
+        fun setDisabled(disabled: Boolean) = apply { this.disabled = disabled }
+        fun setEmoji(emoji: Emoji?) = apply { this.emoji = emoji }
+        fun setOnClick(onClick: ((ButtonInteractionEvent) -> Unit)?) = apply { this.onClick = onClick }
 
         fun build(): AutoButton {
             if (onClick != null) {
@@ -128,12 +128,12 @@ class AutoButton private constructor(
             onClick: ((ButtonInteractionEvent) -> Unit)? = null
         ): AutoButton {
             return Builder()
-                .buttonStyle(buttonStyle)
-                .customId(customId)
-                .label(label)
-                .disabled(disabled)
-                .emoji(emoji)
-                .onClick(onClick)
+                .setButtonStyle(buttonStyle)
+                .setCustomId(customId)
+                .setLabel(label)
+                .setDisabled(disabled)
+                .setEmoji(emoji)
+                .setOnClick(onClick)
                 .build()
         }
     }
