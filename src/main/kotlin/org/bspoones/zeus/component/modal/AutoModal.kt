@@ -64,10 +64,10 @@ class AutoModal private constructor(
         private var inputs: List<AutoModalInput> = listOf()
         private var onSubmit: ((ModalInteractionEvent) -> Unit)? = null
 
-        fun customId(customId: String) = apply { this.customId = customId }
-        fun title(title: String) = apply { this.title = title }
-        fun inputs(inputs: List<AutoModalInput>) = apply { this.inputs = inputs }
-        fun onSubmit(onSubmit: ((ModalInteractionEvent) -> Unit)?) = apply { this.onSubmit = onSubmit }
+        fun setCustomId(customId: String) = apply { this.customId = customId }
+        fun setTitle(title: String) = apply { this.title = title }
+        fun setInputs(inputs: List<AutoModalInput>) = apply { this.inputs = inputs }
+        fun setOnSubmit(onSubmit: ((ModalInteractionEvent) -> Unit)?) = apply { this.onSubmit = onSubmit }
 
         fun build(): AutoModal {
             if (onSubmit != null) {
@@ -112,10 +112,10 @@ class AutoModal private constructor(
             onSubmit: ((ModalInteractionEvent) -> Unit)? = null,
         ): AutoModal {
             return Builder()
-                .customId(customId)
-                .title(title)
-                .inputs(inputs)
-                .onSubmit(onSubmit)
+                .setCustomId(customId)
+                .setTitle(title)
+                .setInputs(inputs)
+                .setOnSubmit(onSubmit)
                 .build()
         }
     }
