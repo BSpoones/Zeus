@@ -1,6 +1,7 @@
 package org.bspoones.zeus.command.handler
 
 import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions
+import net.dv8tion.jda.api.Permission as JDAPermission
 import org.bspoones.zeus.command.annotations.permission.Permission
 import org.bspoones.zeus.command.annotations.permission.Permissions
 import kotlin.reflect.KClass
@@ -43,7 +44,6 @@ object PermissionHandler {
         return buildPermissions(permission, permissions)
     }
 
-    private fun buildPermissions(permission: net.dv8tion.jda.api.Permission?, permissions: Array<net.dv8tion.jda.api.Permission>?): DefaultMemberPermissions {
     /**
      * Creates a [DefaultMemberPermissions] instance from the annotation permission(s)
      *
