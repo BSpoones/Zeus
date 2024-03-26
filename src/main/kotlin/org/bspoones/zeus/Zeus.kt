@@ -44,10 +44,10 @@ object Zeus {
         prefixGuildMap: MutableMap<Long, String> = mutableMapOf(),
         guilds: List<Long> = listOf()
     ) {
-        this.api
-        this.globalMessagePrefix
-        this.prefixGuildMap
-        this.guilds
+        this.api = api
+        this.globalMessagePrefix = globalMessagePrefix
+        this.prefixGuildMap = prefixGuildMap
+        this.guilds = guilds
 
         CommandRegistry.setup(
             this.api,
