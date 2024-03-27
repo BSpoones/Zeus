@@ -1,18 +1,12 @@
 package org.bspoones.zeus.embed
 
-import com.sun.org.apache.xpath.internal.operations.Bool
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
-import net.dv8tion.jda.api.entities.emoji.Emoji
-import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
-import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
-import org.bspoones.zeus.component.button.AutoButton
 import java.awt.Color
-import java.time.LocalTime
 import java.time.OffsetDateTime
 import java.time.temporal.TemporalAccessor
 
