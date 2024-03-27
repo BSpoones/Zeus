@@ -1,13 +1,19 @@
 package org.bspoones.zeus.embed
 
+import com.sun.org.apache.xpath.internal.operations.Bool
 import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.entities.emoji.Emoji
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
+import net.dv8tion.jda.api.interactions.components.buttons.ButtonStyle
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
+import org.bspoones.zeus.component.button.AutoButton
 import java.awt.Color
 import java.time.LocalTime
+import java.time.OffsetDateTime
 import java.time.temporal.TemporalAccessor
 
 /**
@@ -75,7 +81,7 @@ class AutoEmbed(
     val footer: AutoEmbedFooter?,
     val thumbnailUrl: String?,
     val imageUrl: String?,
-    val timestamp: TemporalAccessor? = LocalTime.now()
+    val timestamp: TemporalAccessor? = OffsetDateTime.now()
 ) {
 
     /**
@@ -140,6 +146,7 @@ class AutoEmbed(
         fun setThumbnailUrl(thumbnailUrl: String?) = apply { this.thumbnailUrl = thumbnailUrl }
         fun setImageUrl(imageUrl: String?) = apply { this.imageUrl = imageUrl }
         fun setTimestamp(timestamp: TemporalAccessor?) = apply { this.timestamp = timestamp }
+        fun setTimestamp(timestamp: Boolean = true) = apply { this.timestamp = OffsetDateTime.now() }
         fun setSenderUser(sender: User?) = apply { this.senderUser = sender }
         fun setSenderMember(sender: Member?) = apply { this.senderMember = sender }
 
@@ -206,5 +213,59 @@ class AutoEmbed(
     fun toMessageCreateData() : MessageCreateData {
         return toMessageCreateBuilder().build()
     }
+
+
+    companion object {
+        /**
+         * Creates a new AutoEmbed instance with the specified parameters.
+         *
+         * @param embedType The type of embed.
+         * @param user The user associated with the embed.
+         * @param member The member associated with the embed.
+         * @param title The title of the embed.
+         * @param titleUrl The URL linked to the title.
+         * @param description The description text of the embed.
+         * @param fields The list of fields for the embed.
+         * @param color The color of the embed.
+         * @param author The author of the embed.
+         * @param footer The footer of the embed.
+         * @param thumbnailUrl The URL of the thumbnail image.
+         * @param imageUrl The URL of the main image.
+         * @param timestamp The timestamp of the embed.
+         * @return A new AutoEmbed instance configured with the specified parameters.
+         */
+        fun of(
+            embedType: EmbedType,
+            user: User?,
+            member: Member?,
+            title: String?,
+            titleUrl: String?,
+            description: String?,
+            fields: List<AutoEmbedField>?,
+            color: Color?,
+            author: AutoEmbedAuthor?,
+            footer: AutoEmbedFooter?,
+            thumbnailUrl: String?,
+            imageUrl: String?,
+            timestamp : TemporalAccessor?
+        ): AutoEmbed {
+            return Builder()
+                .setEmbedType(embedType)
+                .setSenderUser(user)
+                .setSenderMember(member)
+                .setTitle(title)
+                .setTitleUrl(titleUrl)
+                .setDescription(description)
+                .setFields(fields)
+                .setColor(color)
+                .setAuthor(author)
+                .setFooter(footer)
+                .setThumbnailUrl(thumbnailUrl)
+                .setImageUrl(imageUrl)
+                .setTimestamp(timestamp)
+                .build()
+        }
+    }
+
 
 }
