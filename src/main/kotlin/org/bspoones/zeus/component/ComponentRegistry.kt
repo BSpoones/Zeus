@@ -12,6 +12,7 @@ import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInterac
  */
 object ComponentRegistry {
     lateinit var api: JDA
+    private var logger: Logger = getLogger("Zeus | Component handler")
 
     val buttonMap: MutableMap<String, (ButtonInteractionEvent) -> Unit> = mutableMapOf()
     val modalMap: MutableMap<String, (ModalInteractionEvent) -> Unit> = mutableMapOf()
