@@ -26,7 +26,7 @@ object CommandRegistry {
     val autoCompleteMap: MutableMap<String, Map<String, List<Any>>> = mutableMapOf()
 
     private val customChoiceMap: MutableMap<String, () -> Collection<Any>> = mutableMapOf()
-    private val commandRegistry: MutableList<CommandData> = mutableListOf()
+    private var commandRegistry: MutableList<CommandData> = mutableListOf()
 
 
     /**
@@ -53,6 +53,9 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun registerCommands(vararg commands: KClass<*>, guildOnly: Boolean = false) {
+        // Reset the command registry every time
+        commandRegistry = mutableListOf()
+
         logger.info("Registering ${commands.size} ${if (guildOnly) "guild" else "global"} commands...")
         commands.forEach { clazz ->
             CommandTreeHandler.buildCommandTree(clazz).forEach { command ->
