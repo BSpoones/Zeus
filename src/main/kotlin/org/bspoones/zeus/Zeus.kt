@@ -4,7 +4,12 @@ import net.dv8tion.jda.api.JDA
 import org.bspoones.zeus.command.Command
 import org.bspoones.zeus.command.CommandRegistry
 import org.bspoones.zeus.component.ComponentRegistry
+import org.bspoones.zeus.extras.Banner
 import org.bspoones.zeus.message.MessageUtils
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory.getLogger
+
+const val VERSION = "1.2"
 
 /**
  * **Zeus**
@@ -20,7 +25,10 @@ object Zeus {
     private lateinit var globalMessagePrefix: String
     private lateinit var prefixGuildMap: MutableMap<Long, String>
     private lateinit var guilds: List<Long>
+
+    var logger: Logger = getLogger("Zeus")
     var isSetup = false
+
 
     /**
      * **Zeus Setup**
@@ -42,8 +50,14 @@ object Zeus {
         api: JDA,
         globalMessagePrefix: String = "!",
         prefixGuildMap: MutableMap<Long, String> = mutableMapOf(),
-        guilds: List<Long> = listOf()
+        guilds: List<Long> = listOf(),
+        logBanner: Boolean = true
     ) {
+        logger.info("Starting Zeus v$VERSION")
+        if (logBanner) {
+            Banner.logBanner()
+        }
+
         this.api = api
         this.globalMessagePrefix = globalMessagePrefix
         this.prefixGuildMap = prefixGuildMap

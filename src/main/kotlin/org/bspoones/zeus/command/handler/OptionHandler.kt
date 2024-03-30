@@ -41,9 +41,8 @@ object OptionHandler {
      * @see org.bspoones.zeus.command.annotations.CommandOption
      */
     fun buildOptions(method: KFunction<*>, commandName: String): List<OptionData> {
-        this.logger.debug("Building options for $commandName")
+        this.logger.info("Building options for $commandName")
         val options = mutableListOf<OptionData>()
-
         method.parameters.forEach { parameter ->
             val commandOption = parameter.findAnnotation<CommandOption>() ?: return@forEach
             val optionType = parameter.type.optionType()
@@ -72,6 +71,7 @@ object OptionHandler {
 
             options.add(optionData)
         }
+        this.logger.info("${options.size} options added to $commandName")
         return options
     }
 
