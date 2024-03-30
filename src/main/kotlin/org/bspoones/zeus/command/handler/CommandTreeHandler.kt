@@ -36,7 +36,7 @@ object CommandTreeHandler {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun buildCommandTree(clazz: KClass<*>): List<CommandData> {
-        this.logger.info("Building command tree")
+        this.logger.debug("Building command tree")
         return if (clazz.hasAnnotation<SlashCommandGroup>()) listOf(buildGroup(clazz)) else buildCommands(clazz)
     }
 
@@ -50,7 +50,7 @@ object CommandTreeHandler {
     private fun buildGroup(clazz: KClass<*>): CommandData {
         val group = clazz.findAnnotation<SlashCommandGroup>()
             ?: throw RuntimeException("Parent class building when it shouldn't")
-        this.logger.info("Building ${group.name}")
+        this.logger.debug("Building ${group.name}")
 
         val commandGroup = Commands.slash(group.name, group.description)
             .setDefaultPermissions(PermissionHandler.buildPermissions(clazz))
@@ -88,7 +88,7 @@ object CommandTreeHandler {
     private fun buildSubGroup(clazz: KClass<*>, parentName: String = ""): SubcommandGroupData {
         val sgAnnotation = clazz.findAnnotation<SlashCommandGroup>()
             ?: throw RuntimeException("Failed to find sub group!")
-        this.logger.info("Building Sub Group ${sgAnnotation.name}")
+        this.logger.debug("Building Sub Group ${sgAnnotation.name}")
 
         val subGroup = SubcommandGroupData(sgAnnotation.name, sgAnnotation.description)
 
@@ -118,7 +118,7 @@ object CommandTreeHandler {
             .flatMap { method ->
                 val slashCommand = method.findAnnotation<SlashCommand>()?.let {
                     val commandName = "${if (parentName.isNotBlank()) "$parentName " else ""}${it.name}"
-                    this.logger.info("Building Sub Command $commandName")
+                    this.logger.debug("Building Sub Command $commandName")
                     CommandForest.addLeaf(CommandType.SLASH, commandName, method)
                     SubcommandData(it.name, it.description)
                         .addOptions(OptionHandler.buildOptions(method, commandName))
@@ -145,7 +145,7 @@ object CommandTreeHandler {
                 val slashCommand = method.findAnnotation<SlashCommand>()?.let {
                     val commandName = "${if (parentName.isNotBlank()) "$parentName " else ""}${it.name}"
                     CommandForest.addLeaf(CommandType.SLASH, commandName, method)
-                    this.logger.info("Building Slash Command $commandName")
+                    this.logger.debug("Building Slash Command $commandName")
                     Commands.slash(it.name, it.description)
                         .addOptions(OptionHandler.buildOptions(method, commandName))
                         .setDefaultPermissions(PermissionHandler.buildPermissions(method))
@@ -153,18 +153,18 @@ object CommandTreeHandler {
                         .setGuildOnly(GuildOnlyHandler.buildGuildOnly(method))
                 }
                 val messageCommand = method.findAnnotation<MessageCommand>()?.let {
-                    this.logger.info("Building Slash Command ${it.name}")
+                    this.logger.debug("Building Message Command ${it.name}")
                     CommandForest.addLeaf(CommandType.MESSAGE, it.name, method)
                     null // Message commands are handled internally
                 }
 
                 val userContextCommand = method.findAnnotation<UserContextCommand>()?.let {
-                    this.logger.info("Building User Context Command ${it.name}")
+                    this.logger.debug("Building User Context Command ${it.name}")
                     CommandForest.addLeaf(CommandType.USER_CONTEXT, it.name, method)
                     Commands.context(Command.Type.USER, it.name)
                 }
                 val messageContextCommand = method.findAnnotation<MessageContextCommand>()?.let {
-                    this.logger.info("Building Message Context Command ${it.name}")
+                    this.logger.debug("Building Message Context Command ${it.name}")
                     CommandForest.addLeaf(CommandType.MESSAGE_CONTEXT, it.name, method)
                     Commands.context(Command.Type.MESSAGE, it.name)
                         .setDefaultPermissions(PermissionHandler.buildPermissions(method))
