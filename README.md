@@ -86,15 +86,86 @@ object MyCommand: Command() {
 }
 ```
 
+As long as you have registered the parent object (in this case `MyCommand`), any `@SlashCommand` function will automatically be registered in Zeus' [Command Registery](src/main/kotlin/org/bspoones/zeus/command/CommandRegistry.kt).
+
+**IMPORTANT**: Each Slash command <u>**MUST**</u> have a name and a description. The name must be lowercase. Here are the following character limits for a Slash Command:
+
+| Type        | Max length |
+|-------------|------------|
+| Name        | 32         |
+| Description | 100        |
 
 
 ### Creating a Message Command
 
+Message commands are registered via the `@MessageCommand` annotation. This will register and map the function to custom registry that hooks onto Message Received Events, allowing for more customisation.:
+
+```kotlin
+object MyCommand: Command() {
+    
+    @MessageCommand("ping","Send a pong to the chat")
+    fun onNameCommand(
+        event: MessageReceivedEvent
+    ) {
+        event.channel.sendMessage("Pong!").queue()
+    }
+}
+```
+
+As long as you have registered the parent object (in this case `MyCommand`), any `@MessageCommand` function will automatically be registered in Zeus' [Command Registery](src/main/kotlin/org/bspoones/zeus/command/CommandRegistry.kt).
+
+
+**IMPORTANT**: Each Message Command <u>**MUST**</u> have a name, and will be the string that is checked whenever a message is sent with a guid's chosen or set prefix
+
 ### Creating a User Context Command
+
+User Context commands are registered via the `@UserContextCommand` annotation. This will register and map the function to custom registry that hooks onto User Context Interaction Events.
+
+To use a User Context command, right click any user that shares a server with your bot and select `Apps`.
+
+```kotlin
+object MyCommand: Command() {
+    
+    @UserContextCommand("ping")
+    fun onNameCommand(
+        event: UserContextInteractionEvent
+    ) {
+        event.reply("Pong!").queue()
+    }
+}
+```
+
+As long as you have registered the parent object (in this case `MyCommand`), any `@UserContextCommand` function will automatically be registered in Zeus' [Command Registery](src/main/kotlin/org/bspoones/zeus/command/CommandRegistry.kt).
+
+
+**IMPORTANT**: Each User Context Command <u>**MUST**</u> have a name. This will appear in the context menu when you right-click a user >> `App`
 
 ### Creating a Message Context Command
 
+Message Context commands are registered via the `@MessageContextCommand` annotation. This will register and map the function to custom registry that hooks onto Message Context Interaction Events.
+
+To use a Message Context command, right click any message and select `Apps`.
+
+```kotlin
+object MyCommand: Command() {
+    
+    @MessageContextCommand("ping")
+    fun onNameCommand(
+        event: MessageContextInteractionEvent
+    ) {
+        event.reply("Pong!").queue()
+    }
+}
+```
+
+As long as you have registered the parent object (in this case `MyCommand`), any `@MessageContextCommand` function will automatically be registered in Zeus' [Command Registery](src/main/kotlin/org/bspoones/zeus/command/CommandRegistry.kt).
+
+
+**IMPORTANT**: Each User Context Command <u>**MUST**</u> have a name. This will appear in the context menu when you right-click a message >> `App`
+
 ### Creating a Slash Command Group
+
+
 
 ### GuildOnly
 
