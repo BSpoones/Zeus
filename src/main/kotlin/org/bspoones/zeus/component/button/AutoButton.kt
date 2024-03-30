@@ -76,6 +76,11 @@ class AutoButton private constructor(
         private var emoji: Emoji? = null
         private var onClick: ((ButtonInteractionEvent) -> Unit)? = null
 
+        /**
+         * Button Style
+         *
+         * @see <img alt="ButtonExample" src="https://raw.githubusercontent.com/discord-jda/JDA/52377f69d1f3bfba909c51a449ac6b258f606956/assets/wiki/interactions/ButtonExamples.png">
+         */
         fun setButtonStyle(buttonStyle: ButtonStyle) = apply { this.buttonStyle = buttonStyle }
         fun setCustomId(customId: String) = apply { this.customId = customId }
         fun setLabel(label: String) = apply { this.label = label }
