@@ -1,9 +1,10 @@
 plugins {
     kotlin("jvm") version "1.9.0"
+    id("maven-publish")
 }
 
 group = "org.bspoones.zeus"
-version = "1.1"
+version = "1.2"
 
 repositories {
     mavenCentral()
@@ -24,4 +25,14 @@ tasks.test {
 
 kotlin {
     jvmToolchain(8)
+}
+
+
+tasks.register<Jar>("sourcesJar") {
+    archiveClassifier.set("sources")
+    from(sourceSets["main"].allSource)
+}
+
+tasks.named("build") {
+    dependsOn("sourcesJar")
 }
