@@ -24,7 +24,7 @@ import org.bspoones.zeus.component.ComponentRegistry
  *         .setMinValues(1)
  *         .setMaxValues(10)
  *         .setDisabled(true)
- *         .setOptions(listOf(SelectOption("name","value"))
+ *         .setOptions(listOf(SelectOption.of("name","value"))
  *         .setOnSelect { event: GenericSelectMenuInteractionEvent
  *             // Select logic here
  *         }
@@ -83,7 +83,7 @@ class AutoSelectMenu(
      *     .setMinValues(1)
      *     .setMaxValues(10)
      *     .setDisabled(true)
-     *     .setOptions(listOf(SelectOption("name","value"))
+     *     .setOptions(listOf(SelectOption.of("name","value"))
      *     .setOnSelect { event: GenericSelectMenuInteractionEvent
      *         // Select logic here
      *     }
