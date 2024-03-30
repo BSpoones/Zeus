@@ -53,14 +53,13 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun registerCommands(vararg commands: KClass<*>, guildOnly: Boolean = false) {
-        // Reset the command registry every time
         commandRegistry = mutableListOf()
-
-        logger.info("Registering ${commands.size} ${if (guildOnly) "guild" else "global"} commands...")
+        logger.info("Registering ${commands.size} ${if (guildOnly) "guild " else ""}command objects")
         commands.forEach { clazz ->
             CommandTreeHandler.buildCommandTree(clazz).forEach { command ->
-                logger.info("Registering ${command.name}")
-                commandRegistry.add(command.setGuildOnly((command.isGuildOnly || guildOnly)))
+                val commandGuildOnly = command.isGuildOnly || guildOnly
+                commandRegistry.add(command.setGuildOnly(commandGuildOnly))
+                logger.info("${command.name} registered as a ${if (commandGuildOnly) "guild" else "global"} command.")
             }
         }
 
