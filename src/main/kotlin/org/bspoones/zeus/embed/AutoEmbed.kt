@@ -4,6 +4,7 @@ import net.dv8tion.jda.api.EmbedBuilder
 import net.dv8tion.jda.api.entities.Member
 import net.dv8tion.jda.api.entities.MessageEmbed
 import net.dv8tion.jda.api.entities.User
+import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
 import net.dv8tion.jda.api.utils.messages.MessageCreateBuilder
 import net.dv8tion.jda.api.utils.messages.MessageCreateData
 import java.awt.Color
@@ -105,8 +106,10 @@ class AutoEmbed(
      *
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
-    class Builder {
-        private var embedType: EmbedType = EmbedType.FULL_CUSTOM
+    class Builder(
+        private val slashEvent: SlashCommandInteractionEvent? = null
+    ) {
+        private var embedType: EmbedType = EmbedType.CONTEXT
         private var senderUser: User? = null
         private var senderMember: Member? = null
         private var title: String? = null
@@ -119,6 +122,13 @@ class AutoEmbed(
         private var thumbnailUrl: String? = null
         private var imageUrl: String? = null
         private var timestamp: TemporalAccessor? = null
+
+        init {
+            if (this.slashEvent != null) {
+                this.senderUser = slashEvent.user
+                this.senderMember = slashEvent.member
+            }
+        }
 
         fun setEmbedType(embedType: EmbedType) = apply { this.embedType = embedType }
         fun setEmbedType(embedType: String) = apply {
@@ -155,6 +165,12 @@ class AutoEmbed(
                 embedType, senderUser, senderMember, title, titleUrl, description,
                 fields, color, author, footer, thumbnailUrl, imageUrl, timestamp
             )
+        }
+
+        fun replyEmbed(ephemeral: Boolean = false) {
+            if (slashEvent == null) throw IllegalArgumentException("Slash event must not be null to use replyEmbed")
+            val embed = build()
+            slashEvent.reply(embed.toMessageCreateData()).setEphemeral(ephemeral).queue()
         }
     }
 
