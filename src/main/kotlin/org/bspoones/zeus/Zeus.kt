@@ -1,15 +1,17 @@
 package org.bspoones.zeus
 
 import net.dv8tion.jda.api.JDA
-import org.bspoones.zeus.command.Command
-import org.bspoones.zeus.command.CommandRegistry
-import org.bspoones.zeus.component.ComponentRegistry
-import org.bspoones.zeus.extras.Banner
-import org.bspoones.zeus.message.MessageUtils
+import net.dv8tion.jda.api.JDABuilder
+import net.dv8tion.jda.api.requests.GatewayIntent
+import org.bspoones.zeus.core.command.Command
+import org.bspoones.zeus.core.command.CommandRegistry
+import org.bspoones.zeus.core.component.ComponentRegistry
+import org.bspoones.zeus.core.extras.Banner
+import org.bspoones.zeus.core.message.MessageUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
 
-const val VERSION = "1.2"
+const val VERSION = "1.3"
 
 /**
  * **Zeus**
@@ -20,61 +22,46 @@ const val VERSION = "1.2"
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object Zeus {
-    private lateinit var api: JDA
-    private lateinit var globalMessagePrefix: String
-    private lateinit var prefixGuildMap: MutableMap<Long, String>
-    private lateinit var guilds: List<Long>
+abstract class Zeus {
+    private lateinit var _api: JDA
+    private var isSetup: Boolean = false
+    private val logger: Logger = getLogger("Zeus")
+    val api: JDA
+        get() = _api
 
-    var logger: Logger = getLogger("Zeus")
-    var isSetup = false
+    val globalMessagePrefix: String = "!"
+    val whitelistGuilds: MutableList<Long> = mutableListOf()
+    val guildPrefixMap: MutableMap<Long, String> = mutableMapOf()
 
+    open fun getToken(): String = "" // TODO -> Base config
 
-    /**
-     * **Zeus Setup**
-     *
-     * Run this to initialise Zeus
-     *
-     * @param api [JDA] - Discord bot instance
-     * @param globalMessagePrefix [String] - Global message command prefix
-     * @param prefixGuildMap MutableMap<[Long],[String]> - Map of guilds to custom prefixes
-     * @param guilds List<[Long]> - List of guilds to set guild only commands for
-     *
-     * @see JDA
-     * @see org.bspoones.zeus.command.annotations.GuildOnly
-     * @see org.bspoones.zeus.command.handler.GuildOnlyHandler
-     *
-     * @author <a href="https://www.bspoones.com">BSpoones</a>
-     */
-    fun setup(
-        api: JDA,
-        globalMessagePrefix: String = "!",
-        prefixGuildMap: MutableMap<Long, String> = mutableMapOf(),
-        guilds: List<Long> = listOf(),
-        logBanner: Boolean = true
-    ) {
-        logger.info("Starting Zeus v$VERSION")
-        if (logBanner) {
-            Banner.logBanner()
-        }
+    open fun getCommands(): List<Command> = listOf()
 
-        this.api = api
-        this.globalMessagePrefix = globalMessagePrefix
-        this.prefixGuildMap = prefixGuildMap
-        this.guilds = guilds
+    open fun getIntents(): List<GatewayIntent> = GatewayIntent.entries
+
+    fun isSetup(): Boolean = isSetup
+
+    fun start(logging: Boolean = true) {
+        if (logging) Banner.logBanner()
+        this._api = JDABuilder.createDefault(
+            getToken(),
+            getIntents()
+        ).build()
+
+        this._api.awaitReady()
 
         CommandRegistry.setup(
             this.api,
             this.globalMessagePrefix,
-            this.prefixGuildMap,
-            this.guilds
+            this.guildPrefixMap,
+            this.whitelistGuilds
         )
         ComponentRegistry.setup(this.api)
         MessageUtils.setup(this.api)
 
         setupListeners()
 
-        this.isSetup = true
+        if (logging) logger.info("${api.selfUser.name} ready on ${api.guilds.size} servers")
     }
 
 
