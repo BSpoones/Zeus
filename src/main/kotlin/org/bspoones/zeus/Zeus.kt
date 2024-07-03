@@ -10,6 +10,7 @@ import org.bspoones.zeus.core.extras.Banner
 import org.bspoones.zeus.core.message.MessageUtils
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory.getLogger
+import kotlin.reflect.KClass
 
 const val VERSION = "1.3"
 
@@ -29,19 +30,20 @@ abstract class Zeus {
     val api: JDA
         get() = _api
 
-    val globalMessagePrefix: String = "!"
-    val whitelistGuilds: MutableList<Long> = mutableListOf()
+    open val globalMessagePrefix: String = "!" // TODO -> Config
+    open val whitelistGuilds: MutableList<Long> = mutableListOf() // TODO -> Config
+
     val guildPrefixMap: MutableMap<Long, String> = mutableMapOf()
 
     open fun getToken(): String = "" // TODO -> Base config
-    open fun getIntents(): List<GatewayIntent> = GatewayIntent.entries
+    open fun getIntents(): List<GatewayIntent> = GatewayIntent.entries // TODO -> Config
 
 
-    abstract fun getCommands(): List<Command>
+    abstract fun getCommands(): List<KClass<*>>
 
     fun isSetup(): Boolean = isSetup
 
-    fun start(logging: Boolean = true) {
+    fun start(logging: Boolean = true, guildOnly: Boolean = false) {
         if (logging) Banner.logBanner()
         this._api = JDABuilder.createDefault(
             getToken(),
@@ -60,6 +62,11 @@ abstract class Zeus {
         MessageUtils.setup(this.api)
 
         setupListeners()
+
+        CommandRegistry.registerCommands(
+            *getCommands().toTypedArray(),
+            guildOnly = guildOnly
+        )
 
         if (logging) logger.info("${api.selfUser.name} ready on ${api.guilds.size} servers")
     }
