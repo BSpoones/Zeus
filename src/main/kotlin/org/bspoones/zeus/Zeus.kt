@@ -34,10 +34,10 @@ abstract class Zeus {
     val guildPrefixMap: MutableMap<Long, String> = mutableMapOf()
 
     open fun getToken(): String = "" // TODO -> Base config
-
-    open fun getCommands(): List<Command> = listOf()
-
     open fun getIntents(): List<GatewayIntent> = GatewayIntent.entries
+
+
+    abstract fun getCommands(): List<Command>
 
     fun isSetup(): Boolean = isSetup
 
