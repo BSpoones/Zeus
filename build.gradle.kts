@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "org.bspoones.zeus"
-version = "1.2"
+version = "1.3"
 
 repositories {
     mavenCentral()
