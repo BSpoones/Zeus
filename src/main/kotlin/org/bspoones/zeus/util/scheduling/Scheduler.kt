@@ -3,6 +3,7 @@ package org.bspoones.zeus.util.scheduling
 import java.util.concurrent.Executors
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import org.bspoones.zeus.util.scheduling.trigger.base.BaseTrigger
+import java.time.Duration
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
@@ -30,6 +31,15 @@ object Scheduler {
             TimeUnit.SECONDS
         )
     }
+    
+    fun delayedTask(delay: Duration, task: () -> Unit): ScheduledFuture<*> {
+        return EXECUTOR.schedule(
+            task,
+            delay.seconds,
+            TimeUnit.SECONDS
+        )
+    }
+    
 
 
 
