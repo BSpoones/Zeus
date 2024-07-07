@@ -14,6 +14,7 @@ import org.bspoones.zeus.core.command.enums.CommandType
 import org.bspoones.zeus.core.command.handler.NsfwHandler
 import org.bspoones.zeus.core.command.handler.OptionHandler
 import org.bspoones.zeus.core.extensions.getOptionValue
+import org.bspoones.zeus.logging.getZeusLogger
 import org.bspoones.zeus.util.scheduling.async
 import kotlin.reflect.full.findAnnotation
 import kotlin.reflect.full.hasAnnotation
@@ -42,6 +43,8 @@ import kotlin.reflect.jvm.javaMethod
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 open class Command : ListenerAdapter() {
+
+    private val logger = getZeusLogger("Command Listener")
 
     /**
      * Slash command interaction listener
@@ -78,6 +81,7 @@ open class Command : ListenerAdapter() {
             }
         }
 
+        logger.info("@${event.user.name} executed the following command in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
         if (sync) {
             function.call(functionObj, event, *args.toTypedArray())
         } else {
@@ -102,6 +106,8 @@ open class Command : ListenerAdapter() {
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
         if (function.hasAnnotation<SYNC>()) {
+
+            logger.info("@${event.user.name} executed the following user context command in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
             function.call(functionObj, event)
         } else {
             async {
@@ -123,6 +129,8 @@ open class Command : ListenerAdapter() {
         val function = CommandForest.getFunction(CommandType.MESSAGE_CONTEXT, event.fullCommandName) ?: return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
+
+        logger.info("@${event.user.name} executed the following message context command in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
         if (function.hasAnnotation<SYNC>()) {
             function.call(functionObj, event)
         } else {
@@ -201,6 +209,7 @@ open class Command : ListenerAdapter() {
         // TODO -> Make this work
 //        args.addAll(List(function.parameters.filter { it.isOptional }.size - args.size) { null })
 
+        logger.info("@${event.author.name} executed the following user context command in ${if (event.isFromGuild) "${event.guild.name} (${event.guild.id})" else "their DM"}: ${event.message}")
         if (sync) {
             function.call(functionObj, event, *args.toTypedArray())
         } else {
