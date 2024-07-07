@@ -27,7 +27,7 @@ import kotlin.reflect.full.hasAnnotation
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 object CommandTreeHandler {
-    private val logger: ZeusLogger = getZeusLogger("$NAME | Command Tree Handler")
+    private val logger: ZeusLogger = getZeusLogger("Command Tree Handler")
 
     /**
      * Adds a command clazz to the command tree
