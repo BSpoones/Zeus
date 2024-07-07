@@ -17,7 +17,7 @@ import kotlin.reflect.KClass
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 object CommandRegistry {
-    private val logger: ZeusLogger = getZeusLogger("$NAME | Command Handler")
+    private val logger: ZeusLogger = getZeusLogger("Command Handler")
 
     lateinit var api: JDA
     lateinit var globalMessagePrefix: String
@@ -54,6 +54,7 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun registerCommands(vararg commands: KClass<*>, guildOnly: Boolean = false) {
+        var commandCount: Int = 0
         commandRegistry = mutableListOf()
         logger.info("Registering ${commands.size} ${if (guildOnly) "guild " else ""}command objects")
         commands.forEach { clazz ->
@@ -61,8 +62,10 @@ object CommandRegistry {
                 val commandGuildOnly = command.isGuildOnly || guildOnly
                 commandRegistry.add(command.setGuildOnly(commandGuildOnly))
                 logger.debug("${command.name} registered as a ${if (commandGuildOnly) "guild" else "global"} command.")
+                commandCount += 1
             }
         }
+        logger.info("$commandCount commands registered!")
 
         if (!guildOnly) {
             registerGlobalCommands()
