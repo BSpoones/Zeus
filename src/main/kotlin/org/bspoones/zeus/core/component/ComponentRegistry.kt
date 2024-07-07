@@ -15,7 +15,7 @@ import org.bspoones.zeus.logging.getZeusLogger
  */
 object ComponentRegistry {
     lateinit var api: JDA
-    private var logger: ZeusLogger = getZeusLogger("$NAME | Component handler")
+    private var logger: ZeusLogger = getZeusLogger("Component handler")
 
     val buttonMap: MutableMap<String, (ButtonInteractionEvent) -> Unit> = mutableMapOf()
     val modalMap: MutableMap<String, (ModalInteractionEvent) -> Unit> = mutableMapOf()
@@ -31,7 +31,7 @@ object ComponentRegistry {
      * @param api [JDA] - Discord bot instance
      *
      * @see JDA
-     * @see org.bspoones.zeus.component
+     * @see org.bspoones.zeus.core.component
      *
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
@@ -52,7 +52,7 @@ object ComponentRegistry {
      *      // Button logic here
      * }
      *```
-     * @see org.bspoones.zeus.component.button.AutoButton
+     * @see org.bspoones.zeus.core.component.button.AutoButton
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun registerButton(id: String, button: (ButtonInteractionEvent) -> Unit) {
@@ -69,7 +69,7 @@ object ComponentRegistry {
      *      // Modal logic here
      * }
      *```
-     * @see org.bspoones.zeus.component.modal.AutoModal
+     * @see org.bspoones.zeus.core.component.modal.AutoModal
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun registerModal(id: String, modal: (ModalInteractionEvent) -> Unit) {
@@ -86,7 +86,7 @@ object ComponentRegistry {
      *      // String select menu logic here
      * }
      *```
-     * @see org.bspoones.zeus.component.select.AutoSelectMenu
+     * @see org.bspoones.zeus.core.component.select.AutoSelectMenu
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun registerStringSelectMenu(id: String, stringSelect: (GenericSelectMenuInteractionEvent<*, *>) -> Unit) {
@@ -103,7 +103,7 @@ object ComponentRegistry {
      *      // Entity select menu logic here
      * }
      *```
-     * @see org.bspoones.zeus.component.select.AutoSelectMenu
+     * @see org.bspoones.zeus.core.component.select.AutoSelectMenu
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun registerEntitySelectMenu(id: String, entitySelect: (GenericSelectMenuInteractionEvent<*, *>) -> Unit) {

@@ -32,7 +32,7 @@ val NUMBER_ONLY_REGEX = "\\d+".toRegex()
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 object OptionHandler {
-    private val logger: ZeusLogger = getZeusLogger("$NAME | Option Handler")
+    private val logger: ZeusLogger = getZeusLogger("Option Handler")
 
     /**
      * Registers options for slash / message commands

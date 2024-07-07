@@ -2,13 +2,13 @@ package org.bspoones.zeus
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
-import org.bspoones.zeus.config.base.ZeusConfig
+import org.bspoones.zeus.config.files.ZeusConfig
 import org.bspoones.zeus.config.getConfig
 import org.bspoones.zeus.config.initConfig
 import org.bspoones.zeus.core.command.Command
 import org.bspoones.zeus.core.command.CommandRegistry
 import org.bspoones.zeus.core.component.ComponentRegistry
-import org.bspoones.zeus.core.extras.Banner
+import org.bspoones.zeus.core.extras.Messages
 import org.bspoones.zeus.core.message.MessageUtils
 import org.bspoones.zeus.logging.SHOULD_LOG
 import org.bspoones.zeus.logging.ZeusLogger
@@ -28,12 +28,10 @@ const val NAME = "ZEUS"
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-abstract class Zeus(
-    private val guildOnly: Boolean = false
-) {
+abstract class Zeus(private val guildOnly: Boolean = false) {
     private lateinit var _api: JDA
     private var isSetup: Boolean = false
-    private val logger: ZeusLogger = getZeusLogger("$NAME | Core")
+    private val logger: ZeusLogger = getZeusLogger("Core")
     val api: JDA
         get() = _api
 
@@ -46,22 +44,21 @@ abstract class Zeus(
 
     fun start(logging: Boolean = true) {
         SHOULD_LOG = logging
-        initConfig(ZeusConfig::class, NAME)
+        if (logging) Messages.logBanner()
 
+        initConfig(ZeusConfig::class)
         val config = getConfig<ZeusConfig>()
 
+        // Config classed as incomplete if token is not given
         if (config.token == "") {
-            logger.error("Failed to start ZEUS. Please setup the config file (config/Zeus/ZeusConfig.json")
+            Messages.logConfigErrorMessage()
             exitProcess(0)
         }
 
-        if (logging) Banner.logBanner()
         this._api = JDABuilder.createDefault(
             config.token,
             config.gatewayIntents
-        )
-            .build()
-
+        ).build()
         this._api.awaitReady()
 
         initConfig()
@@ -79,7 +76,7 @@ abstract class Zeus(
 
         setupListeners()
 
-        if (logging) logger.info("${api.selfUser.name} ready on ${api.guilds.size} servers")
+        logger.info("${api.selfUser.name} ready on ${api.guilds.size} servers")
         isSetup = true
         ZeusInstance.instance = this
     }
