@@ -2,10 +2,11 @@ package org.bspoones.zeus.core.command
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
+import org.bspoones.zeus.NAME
 import org.bspoones.zeus.core.command.CommandRegistry.prefixGuildMap
 import org.bspoones.zeus.core.command.handler.CommandTreeHandler
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory.getLogger
+import org.bspoones.zeus.logging.ZeusLogger
+import org.bspoones.zeus.logging.getZeusLogger
 import kotlin.reflect.KClass
 
 /**
@@ -16,7 +17,7 @@ import kotlin.reflect.KClass
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 object CommandRegistry {
-    private val logger: Logger = getLogger("Zeus | Command Handler")
+    private val logger: ZeusLogger = getZeusLogger("$NAME | Command Handler")
 
     lateinit var api: JDA
     lateinit var globalMessagePrefix: String
@@ -59,11 +60,13 @@ object CommandRegistry {
             CommandTreeHandler.buildCommandTree(clazz).forEach { command ->
                 val commandGuildOnly = command.isGuildOnly || guildOnly
                 commandRegistry.add(command.setGuildOnly(commandGuildOnly))
-                logger.info("${command.name} registered as a ${if (commandGuildOnly) "guild" else "global"} command.")
+                logger.debug("${command.name} registered as a ${if (commandGuildOnly) "guild" else "global"} command.")
             }
         }
 
-        registerGlobalCommands()
+        if (!guildOnly) {
+            registerGlobalCommands()
+        }
         registerGuildCommands()
     }
 

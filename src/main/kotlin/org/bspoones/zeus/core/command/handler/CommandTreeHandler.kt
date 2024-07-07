@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData
+import org.bspoones.zeus.NAME
 import org.bspoones.zeus.core.command.annotations.SlashCommandGroup
 import org.bspoones.zeus.core.command.annotations.command.MessageCommand
 import org.bspoones.zeus.core.command.annotations.command.SlashCommand
@@ -12,8 +13,8 @@ import org.bspoones.zeus.core.command.annotations.command.context.MessageContext
 import org.bspoones.zeus.core.command.annotations.command.context.UserContextCommand
 import org.bspoones.zeus.core.command.enums.CommandType
 import org.bspoones.zeus.core.command.tree.CommandForest
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory.getLogger
+import org.bspoones.zeus.logging.ZeusLogger
+import org.bspoones.zeus.logging.getZeusLogger
 import java.lang.RuntimeException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberFunctions
@@ -26,7 +27,7 @@ import kotlin.reflect.full.hasAnnotation
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
 object CommandTreeHandler {
-    private val logger: Logger = getLogger("Zeus | Command Tree Handler")
+    private val logger: ZeusLogger = getZeusLogger("$NAME | Command Tree Handler")
 
     /**
      * Adds a command clazz to the command tree
