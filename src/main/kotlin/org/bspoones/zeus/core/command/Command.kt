@@ -44,7 +44,7 @@ import kotlin.reflect.jvm.javaMethod
  */
 open class Command : ListenerAdapter() {
 
-    private val logger = getZeusLogger("Command Listener")
+    private val logger = getZeusLogger("Command")
 
     /**
      * Slash command interaction listener
@@ -81,7 +81,7 @@ open class Command : ListenerAdapter() {
             }
         }
 
-        logger.info("@${event.user.name} executed the following command in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
+        logger.info("SLASH - @${event.user.name} in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
         if (sync) {
             function.call(functionObj, event, *args.toTypedArray())
         } else {
@@ -107,7 +107,7 @@ open class Command : ListenerAdapter() {
         if (NsfwHandler.nsfwCheck(function, event)) return
         if (function.hasAnnotation<SYNC>()) {
 
-            logger.info("@${event.user.name} executed the following user context command in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
+            logger.info("USER CONTEXT - @${event.user.name} in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
             function.call(functionObj, event)
         } else {
             async {
@@ -130,7 +130,7 @@ open class Command : ListenerAdapter() {
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
 
-        logger.info("@${event.user.name} executed the following message context command in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
+        logger.info("MESSAGE CONTEXT - @${event.user.name} in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
         if (function.hasAnnotation<SYNC>()) {
             function.call(functionObj, event)
         } else {
@@ -209,7 +209,7 @@ open class Command : ListenerAdapter() {
         // TODO -> Make this work
 //        args.addAll(List(function.parameters.filter { it.isOptional }.size - args.size) { null })
 
-        logger.info("@${event.author.name} executed the following user context command in ${if (event.isFromGuild) "${event.guild.name} (${event.guild.id})" else "their DM"}: ${event.message}")
+        logger.info("MESSAGE - @${event.author.name} in ${if (event.isFromGuild) "${event.guild.name} (${event.guild.id})" else "their DM"}: ${event.message}")
         if (sync) {
             function.call(functionObj, event, *args.toTypedArray())
         } else {
