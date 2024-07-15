@@ -5,9 +5,9 @@ import org.slf4j.LoggerFactory
 
 var SHOULD_LOG: Boolean = true
 
-fun getZeusLogger(name: String) = ZeusLogger(name)
+internal fun getZeusLogger(name: String) = ZeusLogger(name)
 
-class ZeusLogger(name: String) {
+internal class ZeusLogger(name: String) {
     private val logger = LoggerFactory.getLogger("$NAME | $name")
 
     fun debug(msg: String) {

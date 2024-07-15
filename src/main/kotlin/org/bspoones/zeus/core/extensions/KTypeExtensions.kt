@@ -20,7 +20,7 @@ import kotlin.reflect.jvm.javaType
  * @see OptionType
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-fun KType.optionType(): OptionType? = when (this.javaType) {
+internal fun KType.optionType(): OptionType? = when (this.javaType) {
     String::class.java -> OptionType.STRING
     Int::class.java -> OptionType.INTEGER
     Boolean::class.java -> OptionType.BOOLEAN

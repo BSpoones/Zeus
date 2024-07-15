@@ -26,7 +26,7 @@ import kotlin.reflect.full.hasAnnotation
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object CommandTreeHandler {
+internal object CommandTreeHandler {
     private val logger: ZeusLogger = getZeusLogger("Command Tree Handler")
 
     /**
@@ -147,6 +147,10 @@ object CommandTreeHandler {
                     val commandName = "${if (parentName.isNotBlank()) "$parentName " else ""}${it.name}"
                     CommandForest.addLeaf(CommandType.SLASH, commandName, method)
                     this.logger.debug("Building Slash Command $commandName")
+                    if (it.description == "") {
+                        throw IllegalArgumentException("Slash command description cannot be empty.")
+                    }
+
                     Commands.slash(it.name, it.description)
                         .addOptions(OptionHandler.buildOptions(method, commandName))
                         .setDefaultPermissions(PermissionHandler.buildPermissions(method))

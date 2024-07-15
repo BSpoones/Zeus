@@ -40,7 +40,7 @@ private const val PATH_NAME = "config"
  * @see org.bspoones.zeus.config.annotations.ConfigDirectory
  * @see org.bspoones.zeus.config.base.ActionableConfig
  */
-class ConfigFile<T>(
+internal class ConfigFile<T>(
     val clazz: Class<T>,
     private val directory: String = "",
     private val onChange: (WatchEvent<*>) -> Unit = {}

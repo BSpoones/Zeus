@@ -2,8 +2,8 @@ package org.bspoones.zeus.core.command
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
-import org.bspoones.zeus.NAME
-import org.bspoones.zeus.core.command.CommandRegistry.prefixGuildMap
+import org.bspoones.zeus.config.files.ZeusConfig
+import org.bspoones.zeus.config.getConfig
 import org.bspoones.zeus.core.command.handler.CommandTreeHandler
 import org.bspoones.zeus.logging.ZeusLogger
 import org.bspoones.zeus.logging.getZeusLogger
@@ -16,16 +16,12 @@ import kotlin.reflect.KClass
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object CommandRegistry {
+internal object CommandRegistry {
     private val logger: ZeusLogger = getZeusLogger("Command Handler")
 
     lateinit var api: JDA
-    lateinit var globalMessagePrefix: String
-    lateinit var prefixGuildMap: MutableMap<Long, String>
-    lateinit var guilds: List<Long>
 
     val autoCompleteMap: MutableMap<String, Map<String, List<Any>>> = mutableMapOf()
-
     private val customChoiceMap: MutableMap<String, () -> Collection<Any>> = mutableMapOf()
     private var commandRegistry: MutableList<CommandData> = mutableListOf()
 
@@ -119,7 +115,7 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     private fun registerGuildCommands() {
-        guilds.forEach { guildID ->
+        getConfig<ZeusConfig>().whitelistedGuildIds.forEach { guildID ->
             val guild = api.getGuildById(guildID) ?: return@forEach
             guild.updateCommands().addCommands(commandRegistry.filter { it.isGuildOnly }).complete()
         }
@@ -132,7 +128,8 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun getPrefix(guildId: Long): String {
-        return prefixGuildMap[guildId] ?: globalMessagePrefix
+        val config = getConfig<ZeusConfig>()
+        return config.guildPrefixMap[guildId] ?: config.globalMessagePrefix
     }
 
     /**
@@ -141,9 +138,6 @@ object CommandRegistry {
      * This **should** be done within Zeus itself, so you don't have to worry!
      *
      * @param api [JDA] - Discord bot instance
-     * @param globalMessagePrefix [String] - Global message command prefix
-     * @param prefixGuildMap MutableMap<[Long],[String]> - Map of guilds to custom prefixes
-     * @param guilds List<[Long]> - List of guilds to set guild only commands for
      *
      * @see JDA
      * @see org.bspoones.zeus.core.command.annotations.GuildOnly
@@ -152,15 +146,9 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun setup(
-        api: JDA,
-        globalMessagePrefix: String = "!",
-        prefixGuildMap: MutableMap<Long, String> = mutableMapOf(),
-        guilds: List<Long> = listOf()
+        api: JDA
     ) {
         this.api = api
-        this.globalMessagePrefix = globalMessagePrefix
-        this.prefixGuildMap = prefixGuildMap
-        this.guilds = guilds
     }
 
 }

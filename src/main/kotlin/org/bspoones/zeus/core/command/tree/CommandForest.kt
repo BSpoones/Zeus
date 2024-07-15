@@ -10,7 +10,7 @@ import kotlin.reflect.KFunction
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object CommandForest {
+internal object CommandForest {
 
     /**
      * Command leaves the central storage of registered commands

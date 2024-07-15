@@ -38,7 +38,7 @@ private const val BANNER_END_COLOUR = "#0000FF"
 private const val BANNER_START_INDEX = 3
 private const val BANNER_LENGTH = 45
 
-object Messages {
+internal object Messages {
     /**
      * Gradient generator
      *

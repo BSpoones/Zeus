@@ -12,17 +12,17 @@ import kotlin.reflect.full.findAnnotation
  * Permission builder for all commands
  *
  * Registers command permissions
- * @see org.bspoones.zeus.command.annotations.permission
- * @see org.bspoones.zeus.command.annotations.permission
+ * @see org.bspoones.zeus.core.command.annotations.permission
+ * @see org.bspoones.zeus.core.command.annotations.permission
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object PermissionHandler {
+internal object PermissionHandler {
 
     /**
      * Command permission builder
      *
      * @param method [KFunction] - Method (Command) to set permissions for
-     * @see org.bspoones.zeus.command.annotations.permission
+     * @see org.bspoones.zeus.core.command.annotations.permission
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun buildPermissions(method: KFunction<*>): DefaultMemberPermissions {
@@ -35,7 +35,7 @@ object PermissionHandler {
      * Group permission builder
      *
      * @param clazz [KClass] - Object (Group) to set permissions for
-     * @see org.bspoones.zeus.command.annotations.permission
+     * @see org.bspoones.zeus.core.command.annotations.permission
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun buildPermissions(clazz: KClass<*>): DefaultMemberPermissions {
@@ -50,7 +50,7 @@ object PermissionHandler {
      * @param permission [JDAPermission] - Single permission, if any
      * @param permissions Array<[JDAPermission]> - Permission aray, if exists
      * @return [DefaultMemberPermissions] - Member permissions instance
-     * @see org.bspoones.zeus.command.annotations.permission
+     * @see org.bspoones.zeus.core.command.annotations.permission
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     private fun buildPermissions(permission: JDAPermission?, permissions: Array<JDAPermission>?): DefaultMemberPermissions {

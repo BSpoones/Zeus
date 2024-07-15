@@ -28,10 +28,10 @@ val NUMBER_ONLY_REGEX = "\\d+".toRegex()
 /**
  * Command option builder
  *
- * @see org.bspoones.zeus.command.annotations.CommandOption
+ * @see org.bspoones.zeus.core.command.annotations.CommandOption
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object OptionHandler {
+internal object OptionHandler {
     private val logger: ZeusLogger = getZeusLogger("Option Handler")
 
     /**
@@ -39,7 +39,7 @@ object OptionHandler {
      *
      * @param method [KFunction] - Method (Command) being registered
      * @param commandName [String] - Command name
-     * @see org.bspoones.zeus.command.annotations.CommandOption
+     * @see org.bspoones.zeus.core.command.annotations.CommandOption
      */
     fun buildOptions(method: KFunction<*>, commandName: String): List<OptionData> {
         this.logger.debug("Building options for $commandName")

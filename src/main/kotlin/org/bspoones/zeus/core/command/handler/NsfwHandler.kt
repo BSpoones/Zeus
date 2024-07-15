@@ -15,10 +15,10 @@ import kotlin.reflect.full.hasAnnotation
 /**
  * Determining if an object or method is NSFW
  *
- * @see org.bspoones.zeus.command.annotations.NSFW
+ * @see org.bspoones.zeus.core.command.annotations.NSFW
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object NsfwHandler {
+internal object NsfwHandler {
     fun buildNsfw(method: KFunction<*>): Boolean {
         return method.hasAnnotation<NSFW>()
     }
@@ -52,7 +52,7 @@ object NsfwHandler {
      *
      * @param method [KFunction] - Method (Command) in question
      * @param event [MessageReceivedEvent] - Message command event, already checked
-     * @see org.bspoones.zeus.command.Command.onMessageReceived
+     * @see org.bspoones.zeus.core.command.Command.onMessageReceived
      *
      * @return [Boolean] - True if command should not run
      * @author <a href="https://www.bspoones.com">BSpoones</a>
@@ -70,8 +70,8 @@ object NsfwHandler {
      *
      * @param method [KFunction] - Method (Command) in question
      * @param event [GenericCommandInteractionEvent] - Context interaction event
-     * @see org.bspoones.zeus.command.Command.onUserContextInteraction
-     * @see org.bspoones.zeus.command.Command.onMessageContextInteraction
+     * @see org.bspoones.zeus.core.command.Command.onUserContextInteraction
+     * @see org.bspoones.zeus.core.command.Command.onMessageContextInteraction
      *
      * @return [Boolean] - True if command should not run
      * @author <a href="https://www.bspoones.com">BSpoones</a>

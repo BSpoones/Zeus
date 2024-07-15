@@ -11,10 +11,10 @@ import kotlin.reflect.KParameter
 /**
  * Registers command options for all parameters with @Choice annotations
  *
- * @see org.bspoones.zeus.command.annotations.choices
+ * @see org.bspoones.zeus.core.command.annotations.choices
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object ChoiceHandler {
+internal object ChoiceHandler {
 
     /**
      * All possible choices a command choice can be

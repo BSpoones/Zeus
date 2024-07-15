@@ -12,7 +12,7 @@ import net.dv8tion.jda.api.interactions.components.Component
  * Responsible for all component execution
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object ComponentListener: ListenerAdapter() {
+internal object ComponentListener: ListenerAdapter() {
 
     /**
      * Button Interaction event
