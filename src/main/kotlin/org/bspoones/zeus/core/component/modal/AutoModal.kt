@@ -27,7 +27,7 @@ import org.bspoones.zeus.core.component.ComponentRegistry
  *     event.replyModal(modal.toModal()).queue()
  * }
  * ```
- * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+ * @see org.bspoones.zeus.core.command.annotations.command.SlashCommand
  * @see [AutoModalInput]
  * @see [ModalInteractionEvent]
  *

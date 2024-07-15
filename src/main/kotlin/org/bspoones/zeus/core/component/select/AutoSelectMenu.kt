@@ -52,7 +52,7 @@ import org.bspoones.zeus.core.component.ComponentRegistry
  *     event.reply(message).queue()
  * }
  * ```
- * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+ * @see org.bspoones.zeus.core.command.annotations.command.SlashCommand
  * @see [StringSelectMenu]
  * @see [EntitySelectMenu]
  * @see [SelectTarget]

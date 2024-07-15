@@ -55,7 +55,7 @@ import java.time.temporal.TemporalAccessor
  *     event.reply(embed.toMessageCreateData())
  * }
  * ```
- * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+ * @see org.bspoones.zeus.core.command.annotations.command.SlashCommand
  * @see [MessageEmbed]
  * @see [Color]
  * @see [EmbedType]
@@ -133,9 +133,9 @@ class AutoEmbed(
         fun setEmbedType(embedType: EmbedType) = apply { this.embedType = embedType }
         fun setEmbedType(embedType: String) = apply {
             this.embedType =
-                EmbedType.values().find { it.name == embedType.uppercase() } ?: throw IllegalArgumentException(
+                EmbedType.entries.find { it.name == embedType.uppercase() } ?: throw IllegalArgumentException(
                     "Invalid embed type. Please choose from ${
-                        EmbedType.values().joinToString("\n- ")
+                        EmbedType.entries.joinToString("\n- ")
                     }"
                 )
         }
@@ -150,7 +150,7 @@ class AutoEmbed(
         fun setThumbnailUrl(thumbnailUrl: String?) = apply { this.thumbnailUrl = thumbnailUrl }
         fun setImageUrl(imageUrl: String?) = apply { this.imageUrl = imageUrl }
         fun setTimestamp(timestamp: TemporalAccessor?) = apply { this.timestamp = timestamp }
-        fun setTimestamp(timestamp: Boolean = true) = apply { this.timestamp = OffsetDateTime.now() }
+        fun setTimestamp() = apply { this.timestamp = OffsetDateTime.now() }
         fun setSenderUser(sender: User?) = apply { this.senderUser = sender }
         fun setSenderMember(sender: Member?) = apply { this.senderMember = sender }
 

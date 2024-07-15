@@ -34,7 +34,7 @@ import org.bspoones.zeus.core.extensions.toButton
  *     event.reply(message).queue()
  * }
  * ```
- * @see org.bspoones.zeus.command.annotations.command.SlashCommand
+ * @see org.bspoones.zeus.core.command.annotations.command.SlashCommand
  * @see [ButtonInteractionEvent]
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
