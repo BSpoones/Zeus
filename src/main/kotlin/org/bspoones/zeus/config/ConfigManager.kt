@@ -5,7 +5,7 @@ import kotlin.reflect.KClass
 import org.bspoones.zeus.logging.getZeusLogger
 
 inline fun <reified T : Any> getConfig(): T = ConfigManager.getConfig(T::class.java)
-fun <T : Any> initConfig(vararg clazzes: KClass<T>) = clazzes.forEach { ConfigManager.initConfig(it.java) }
+fun <T : Any> initConfig(vararg clazzes: KClass<out T>) = clazzes.forEach { ConfigManager.initConfig(it.java) }
 
 // TODO -> JavaDoc
 object ConfigManager : AutoCloseable {
