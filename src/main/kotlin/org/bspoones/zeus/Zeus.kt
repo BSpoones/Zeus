@@ -2,6 +2,7 @@ package org.bspoones.zeus
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
+import org.bspoones.zeus.config.files.MongoConfig
 import org.bspoones.zeus.config.files.ZeusConfig
 import org.bspoones.zeus.config.getConfig
 import org.bspoones.zeus.config.initConfig
@@ -13,6 +14,7 @@ import org.bspoones.zeus.core.message.MessageUtils
 import org.bspoones.zeus.logging.SHOULD_LOG
 import org.bspoones.zeus.logging.ZeusLogger
 import org.bspoones.zeus.logging.getZeusLogger
+import org.bspoones.zeus.storage.MongoConnection
 import kotlin.reflect.KClass
 import kotlin.system.exitProcess
 
@@ -37,6 +39,7 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
 
     open fun initConfig() {}
 
+    open fun initEntities() {}
 
     abstract fun getCommands(): List<KClass<*>>
 
@@ -46,7 +49,10 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
         SHOULD_LOG = logging
         if (logging) Messages.logBanner()
 
-        initConfig(ZeusConfig::class)
+        initConfig(
+            ZeusConfig::class,
+            MongoConfig::class
+        )
         val config = getConfig<ZeusConfig>()
 
         // Config classed as incomplete if token is not given
@@ -63,12 +69,11 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
 
         initConfig()
 
-        CommandRegistry.setup(
-            this.api,
-            config.globalMessagePrefix,
-            config.guildPrefixMap,
-            config.whitelistedGuildIds
-        )
+        MongoConnection.setup()
+
+        initEntities()
+
+        CommandRegistry.setup(this.api)
         registerCommands()
 
         ComponentRegistry.setup(this.api)
