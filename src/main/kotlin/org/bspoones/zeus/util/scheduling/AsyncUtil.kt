@@ -4,12 +4,14 @@ import java.util.concurrent.Executors
 import com.google.common.util.concurrent.ThreadFactoryBuilder
 import org.bspoones.zeus.util.scheduling.trigger.base.BaseTrigger
 import java.time.Duration
+import java.util.concurrent.CompletableFuture
 import java.util.concurrent.ScheduledFuture
 import java.util.concurrent.TimeUnit
 
-fun async(unit: () -> Unit) = Scheduler.runAsync(unit)
+fun async(unit: () -> Unit) = AsyncUtil.runAsync(unit)
+fun <T> supplyAsync(task: () -> CompletableFuture<T>) = AsyncUtil.supplyAsync(task)
 
-object Scheduler {
+object AsyncUtil {
     private val EXECUTOR = Executors.newScheduledThreadPool(
         2,
         ThreadFactoryBuilder()
@@ -31,7 +33,7 @@ object Scheduler {
             TimeUnit.SECONDS
         )
     }
-    
+
     fun delayedTask(delay: Duration, task: () -> Unit): ScheduledFuture<*> {
         return EXECUTOR.schedule(
             task,
@@ -39,9 +41,10 @@ object Scheduler {
             TimeUnit.SECONDS
         )
     }
-    
 
-
+    fun <T> supplyAsync(task: () -> T): CompletableFuture<T> {
+        return CompletableFuture.supplyAsync(task, EXECUTOR)
+    }
 
 
 }
