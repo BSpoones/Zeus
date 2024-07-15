@@ -15,6 +15,10 @@ repositories {
 }
 
 dependencies {
+    implementation("org.mongodb:mongodb-driver-sync:4.11.1")
+    implementation("dev.morphia.morphia:morphia-core:2.4.12")
+    implementation("dev.morphia.morphia:morphia-kotlin:2.4.12")
+
     implementation("com.google.guava:guava:33.2.1-jre")
     implementation("org.spongepowered:configurate-gson:4.1.2")
     implementation("org.slf4j:slf4j-api:1.7.32") // SLF4J dependency
