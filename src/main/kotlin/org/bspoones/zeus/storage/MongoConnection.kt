@@ -2,7 +2,6 @@ package org.bspoones.zeus.storage
 
 import com.mongodb.client.MongoClient
 import com.mongodb.client.MongoClients
-import com.mongodb.client.jndi.MongoClientFactory
 import dev.morphia.Datastore
 import dev.morphia.Morphia
 import org.bspoones.zeus.config.files.MongoConfig
@@ -24,6 +23,7 @@ object MongoConnection {
             if (client != null) {
                 client!!.close()
             }
+            // Forcing null if config is newly disabled
             client = null
             store = null
             return
