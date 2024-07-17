@@ -45,6 +45,4 @@ object AsyncUtil {
     fun <T> supplyAsync(task: () -> T): CompletableFuture<T> {
         return CompletableFuture.supplyAsync(task, EXECUTOR)
     }
-
-
 }
