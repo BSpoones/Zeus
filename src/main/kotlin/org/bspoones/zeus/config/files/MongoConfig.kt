@@ -8,6 +8,7 @@ import org.bspoones.zeus.logging.getZeusLogger
 import org.spongepowered.configurate.objectmapping.ConfigSerializable
 import java.net.URLEncoder
 import java.nio.file.WatchEvent
+import org.bspoones.zeus.storage.MongoConnection
 
 private fun String.URLEncode() = URLEncoder.encode(this, "UTF-8")
 
@@ -22,8 +23,6 @@ internal class MongoConfig: ActionableConfig() {
     var databaseName: String = ""
     var username: String = ""
     var password: String = ""
-
-    var connectionAddress = "mongodb://127.0.0.1:27017/test?ssl=false"
 
     private fun connectionString(): String {
         val x =  "mongodb://" +
@@ -40,6 +39,8 @@ internal class MongoConfig: ActionableConfig() {
 
         println("ADDRESS IS $x")
 
+        // TODO -> SSL this lol
+
         return x
     }
 
@@ -51,6 +52,7 @@ internal class MongoConfig: ActionableConfig() {
         val logger = getZeusLogger("MongoConfig")
 
         logger.info("MongoConfig has changed, restarting Mongo Connection!")
+        MongoConnection.setup()
     }
 
 }
