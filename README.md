@@ -48,7 +48,7 @@ Let's break that down:
 Zeus creates and registers commands via objects and annotations (`@Annotation`). To create a command, you must create an object and inherrit from `Command`:
 
 ```kotlin
-import org.bspoones.zeus.core.command.Command
+import org.bspoones.zeus.command.Command
 
 object MyCommand: Command() {}
 ```
