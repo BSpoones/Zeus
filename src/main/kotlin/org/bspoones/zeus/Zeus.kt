@@ -2,15 +2,15 @@ package org.bspoones.zeus
 
 import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.JDABuilder
+import org.bspoones.zeus.command.Command
 import org.bspoones.zeus.config.files.MongoConfig
 import org.bspoones.zeus.config.files.ZeusConfig
 import org.bspoones.zeus.config.getConfig
 import org.bspoones.zeus.config.initConfig
-import org.bspoones.zeus.core.command.Command
-import org.bspoones.zeus.core.command.CommandRegistry
-import org.bspoones.zeus.core.component.ComponentRegistry
-import org.bspoones.zeus.core.extras.Messages
-import org.bspoones.zeus.core.message.MessageUtils
+import org.bspoones.zeus.command.CommandRegistry
+import org.bspoones.zeus.component.ComponentRegistry
+import org.bspoones.zeus.extras.Messages
+import org.bspoones.zeus.message.MessageUtils
 import org.bspoones.zeus.logging.SHOULD_LOG
 import org.bspoones.zeus.logging.ZeusLogger
 import org.bspoones.zeus.logging.getZeusLogger
@@ -33,7 +33,7 @@ const val NAME = "ZEUS"
 abstract class Zeus(private val guildOnly: Boolean = false) {
     private lateinit var _api: JDA
     private var isSetup: Boolean = false
-    private val logger: ZeusLogger = getZeusLogger("Core")
+    private val logger: ZeusLogger = getZeusLogger("")
     val api: JDA
         get() = _api
 
