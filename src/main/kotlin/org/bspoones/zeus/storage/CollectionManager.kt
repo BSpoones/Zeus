@@ -1,12 +1,11 @@
 package org.bspoones.zeus.storage
 
 import com.mongodb.client.model.Filters
-import org.bspoones.zeus.config.files.MongoConfig
 import org.bspoones.zeus.logging.getZeusLogger
-import kotlin.math.log
 import kotlin.reflect.KClass
 
-fun registerEntity(vararg entities: KClass<out MongoEntity>) {
+
+fun <T : MongoEntity> registerEntity(vararg entities: KClass<out MongoEntity>) {
     entities.forEach {
         CollectionManager.registerEntity(it)
     }
