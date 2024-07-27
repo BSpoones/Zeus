@@ -67,13 +67,14 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
         ).build()
         this._api.awaitReady()
 
-        initConfig()
-
         MongoConnection.setup()
 
         initEntities()
 
         CommandRegistry.setup(this.api)
+
+        initConfig()
+
         registerCommands()
 
         ComponentRegistry.setup(this.api)
