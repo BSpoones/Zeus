@@ -1,16 +1,15 @@
 package org.bspoones.zeus.command
 
 import net.dv8tion.jda.api.entities.Message.Attachment
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
-import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent
+import net.dv8tion.jda.api.events.interaction.command.*
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.commands.Command
 import org.bspoones.zeus.command.annotations.CommandOption
 import org.bspoones.zeus.command.annotations.SYNC
 import org.bspoones.zeus.command.tree.CommandForest
 import org.bspoones.zeus.command.enums.CommandType
+import org.bspoones.zeus.command.enums.toCommandType
 import org.bspoones.zeus.command.handler.NsfwHandler
 import org.bspoones.zeus.command.handler.OptionHandler
 import org.bspoones.zeus.extensions.getOptionValue
@@ -56,6 +55,8 @@ open class Command : ListenerAdapter() {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
+        if (tryRunPetal(event)) return
+
         val function = CommandForest.getFunction(CommandType.SLASH, event.fullCommandName) ?: return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
 
@@ -102,6 +103,8 @@ open class Command : ListenerAdapter() {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     override fun onUserContextInteraction(event: UserContextInteractionEvent) {
+        if (tryRunPetal(event)) return
+
         val function = CommandForest.getFunction(CommandType.USER_CONTEXT, event.fullCommandName) ?: return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
@@ -126,6 +129,8 @@ open class Command : ListenerAdapter() {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     override fun onMessageContextInteraction(event: MessageContextInteractionEvent) {
+        if (tryRunPetal(event)) return
+
         val function = CommandForest.getFunction(CommandType.MESSAGE_CONTEXT, event.fullCommandName) ?: return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
@@ -154,7 +159,7 @@ open class Command : ListenerAdapter() {
     override fun onMessageReceived(event: MessageReceivedEvent) {
         if (event.author.isBot) return
         val content = event.message.contentRaw
-        if (!content.startsWith(org.bspoones.zeus.command.CommandRegistry.getPrefix(event.guild.idLong))) return
+        if (!content.startsWith(CommandRegistry.getPrefix(event.guild.idLong))) return
 
         val contentArgs = content.split(" ").filter { it != "" }
         val commandName = contentArgs.first().substring(1)
@@ -229,7 +234,7 @@ open class Command : ListenerAdapter() {
      */
     @Suppress("UNCHECKED_CAST")
     override fun onCommandAutoCompleteInteraction(event: CommandAutoCompleteInteractionEvent) {
-        val options = org.bspoones.zeus.command.CommandRegistry.autoCompleteMap[event.fullCommandName] ?: return
+        val options = CommandRegistry.autoCompleteMap[event.fullCommandName] ?: return
         var choices = options[event.focusedOption.name] ?: return
         if (choices.isEmpty()) return
 
@@ -246,5 +251,14 @@ open class Command : ListenerAdapter() {
         ).queue()
     }
 
-
+    private fun tryRunPetal(event: GenericCommandInteractionEvent): Boolean {
+        if (event.guild != null) {
+            val configCommand = CommandRegistry.findConfigCommand(event.guild!!.idLong, event.name)
+            if (configCommand != null) {
+                configCommand.run(event)
+                return true
+            }
+        }
+        return false
+    }
 }
