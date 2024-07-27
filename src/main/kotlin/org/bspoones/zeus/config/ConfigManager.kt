@@ -1,10 +1,13 @@
 package org.bspoones.zeus.config
 
+import org.bspoones.zeus.command.CommandRegistry
+import org.bspoones.zeus.command.config.CommandConfig
 import org.bspoones.zeus.config.annotations.ConfigDirectory
 import kotlin.reflect.KClass
 import org.bspoones.zeus.logging.getZeusLogger
 
 inline fun <reified T : Any> getConfig(): T = ConfigManager.getConfig(T::class.java)
+fun <T> getConfig(config: Class<T>): T = ConfigManager.getConfig(config)
 fun <T : Any> initConfig(vararg clazzes: KClass<out T>) = clazzes.forEach { ConfigManager.initConfig(it.java) }
 
 // TODO -> JavaDoc
@@ -30,6 +33,8 @@ object ConfigManager : AutoCloseable {
         } catch (t: Throwable) {
             t.printStackTrace()
         }
+        registerCommandConfig(config)
+
     }
 
     @Suppress("UNCHECKED_CAST")
@@ -38,4 +43,12 @@ object ConfigManager : AutoCloseable {
         return configMap[config]?.getConfig() as T
             ?: throw ClassNotFoundException("The class ${config.simpleName} has not been initialised!")
     }
+
+    private fun <T> registerCommandConfig(config: Class<T>) {
+        val configFile = getConfig(config) ?: return
+        if (configFile is CommandConfig) {
+            CommandRegistry.registerCommandConfig(configFile)
+        }
+    }
+
 }
