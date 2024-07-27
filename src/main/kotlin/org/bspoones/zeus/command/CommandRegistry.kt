@@ -1,12 +1,19 @@
 package org.bspoones.zeus.command
 
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.exceptions.ContextException
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import org.bspoones.zeus.config.files.ZeusConfig
 import org.bspoones.zeus.config.getConfig
 import org.bspoones.zeus.command.handler.CommandTreeHandler
+import org.bspoones.zeus.command.config.CommandConfig
+import org.bspoones.zeus.command.config.SerialisedCommand
 import org.bspoones.zeus.logging.ZeusLogger
 import org.bspoones.zeus.logging.getZeusLogger
+import org.bspoones.zeus.util.scheduling.async
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
@@ -24,6 +31,8 @@ internal object CommandRegistry {
     val autoCompleteMap: MutableMap<String, Map<String, List<Any>>> = mutableMapOf()
     private val customChoiceMap: MutableMap<String, () -> Collection<Any>> = mutableMapOf()
     private var commandRegistry: MutableList<CommandData> = mutableListOf()
+
+    private var commandConfigs: MutableList<CommandConfig> = mutableListOf()
 
 
     /**
@@ -67,6 +76,62 @@ internal object CommandRegistry {
             registerGlobalCommands()
         }
         registerGuildCommands()
+    }
+
+    fun registerCommandConfig(config: CommandConfig) {
+        // Done async as thread locking operations are required
+        async {
+            val latestConfig = getConfig(config::class.java) // Ensures latest version is fetched on registration
+
+            val cachedGuilds: MutableMap<Long, Guild> = mutableMapOf()
+            val commandData = latestConfig.commandData()
+            logger.debug("Registering Command Config: ${latestConfig::class.simpleName}")
+
+            removeExistingCommandConfig(config)
+            latestConfig.guildIds.forEach { guildId ->
+                val guild = cachedGuilds[guildId] ?: api.getGuildById(guildId) ?: return@forEach
+                cachedGuilds[guildId] = guild
+                commandData.forEach {
+                    guild.upsertCommand(it).queueAfter(5, TimeUnit.SECONDS) {
+                        logger.info("Successfully re-registered ${it.type} - ${it.name} in ${guild.name}")
+                    }
+                }
+            }
+            commandConfigs.add(latestConfig)
+        }
+    }
+
+    private fun removeExistingCommandConfig(config: CommandConfig) {
+        val existing = commandConfigs.find { it::class.simpleName == config::class.simpleName } ?: return
+        val cachedGuilds: MutableMap<Long, Guild> = mutableMapOf()
+
+        val deletedCommands = existing.commands.map { Pair(it.commandTypes, it.name) }
+            .toSet() - config.commands.map { Pair(it.commandTypes, it.name) }.toSet()
+
+        existing.guildIds.forEach { guildId ->
+            val guild = cachedGuilds[guildId] ?: api.getGuildById(guildId) ?: return@forEach
+            cachedGuilds[guildId] = guild
+
+            guild.retrieveCommands().queue { commands ->
+                deletedCommands.forEach { commandData ->
+                    // Complete required in order to ensure command is successfully deleted
+                    commandData.first.forEach { commandType ->
+                        commands.find { it.name == commandData.second && it.type == commandType.toDiscord() }?.delete()
+                            ?.queue()
+                    }
+
+                }
+            }
+        }
+        commandConfigs.removeAll { it::class.simpleName == config::class.simpleName }
+    }
+
+
+    fun findConfigCommand(guildId: Long, name: String): SerialisedCommand? {
+        return commandConfigs.find {
+            it.guildIds.contains(guildId) && it.commands.map { it.name }.contains(name)
+        }
+            ?.commands?.find { it.name == name }
     }
 
     /**
