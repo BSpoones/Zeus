@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit
 fun async(unit: () -> Unit) = AsyncUtil.runAsync(unit)
 fun <T> supplyAsync(task: () -> CompletableFuture<T>) = AsyncUtil.supplyAsync(task)
 
+fun delayTask(delay: Duration, task: () -> Unit) = AsyncUtil.delayedTask(delay, task)
 object AsyncUtil {
     private val EXECUTOR = Executors.newScheduledThreadPool(
         2,
