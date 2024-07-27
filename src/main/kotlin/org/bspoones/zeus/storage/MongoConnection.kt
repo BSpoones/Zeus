@@ -6,6 +6,7 @@ import dev.morphia.Datastore
 import dev.morphia.Morphia
 import org.bspoones.zeus.config.files.MongoConfig
 import org.bspoones.zeus.config.getConfig
+import org.bspoones.zeus.extras.Messages
 import org.bspoones.zeus.logging.getZeusLogger
 import javax.naming.ConfigurationException
 import kotlin.system.exitProcess
@@ -35,7 +36,7 @@ object MongoConnection {
 
     fun validityCheck() {
         if (store == null) {
-            logger.error("Failed to load database, TODO")
+            Messages.logMongoErrorMessage()
             exitProcess(0)
         }
     }
