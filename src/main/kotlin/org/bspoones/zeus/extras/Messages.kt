@@ -32,6 +32,15 @@ private val SETUP_CONFIG_MESSAGE = listOf(
     "intents for a discord bot to have, please adjust as necessary"
 )
 
+private val MONGO_FAIL_MESSAGE = listOf(
+    "                  +------------------------------+",
+    "                  |   Zeus setup is incomplete!  |",
+    "                  +------------------------------+",
+    "\n",
+    "If you plan to use database features, please fill in the generated config file",
+    "in /config/zeus/MongoConfig.json"
+)
+
 
 private const val BANNER_START_COLOUR = "#FF0000"
 private const val BANNER_END_COLOUR = "#0000FF"
@@ -106,6 +115,10 @@ internal object Messages {
 
     fun logConfigErrorMessage() {
         println(SETUP_CONFIG_MESSAGE.joinToString("\n"))
+    }
+
+    fun logMongoErrorMessage() {
+        println(MONGO_FAIL_MESSAGE.joinToString("\n"))
     }
 
 }
