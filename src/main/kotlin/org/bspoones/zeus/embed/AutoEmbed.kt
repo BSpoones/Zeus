@@ -151,6 +151,7 @@ class AutoEmbed(
         fun setImageUrl(imageUrl: String?) = apply { this.imageUrl = imageUrl }
         fun setTimestamp(timestamp: TemporalAccessor?) = apply { this.timestamp = timestamp }
         fun setTimestamp() = apply { this.timestamp = OffsetDateTime.now() }
+        fun setTimestamp(enabled: Boolean) = apply { if (enabled) this.timestamp = OffsetDateTime.now() else this.timestamp = null }
         fun setSenderUser(sender: User?) = apply { this.senderUser = sender }
         fun setSenderMember(sender: Member?) = apply { this.senderMember = sender }
 
