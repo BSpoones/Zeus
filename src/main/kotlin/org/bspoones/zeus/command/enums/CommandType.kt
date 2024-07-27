@@ -1,5 +1,7 @@
 package org.bspoones.zeus.command.enums
 
+import net.dv8tion.jda.api.interactions.commands.Command
+
 /**
  * Command Type Enum
  * 
@@ -8,9 +10,27 @@ package org.bspoones.zeus.command.enums
  * @see org.bspoones.zeus.command.tree
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-internal enum class CommandType(val typeName: String) {
-    SLASH("Slash Command"),
-    MESSAGE("Message Command"),
-    USER_CONTEXT("User Context Command"),
-    MESSAGE_CONTEXT("Message Context Command"),
+enum class CommandType {
+    SLASH,
+    MESSAGE,
+    USER_CONTEXT,
+    MESSAGE_CONTEXT;
+
+    fun toDiscord(): Command.Type {
+        return when (this) {
+             SLASH -> Command.Type.SLASH
+             MESSAGE -> Command.Type.UNKNOWN
+             USER_CONTEXT -> Command.Type.USER
+             MESSAGE_CONTEXT -> Command.Type.MESSAGE
+        }
+    }
+}
+
+internal fun Command.Type.toCommandType(): CommandType {
+    return when (this) {
+        Command.Type.SLASH -> CommandType.SLASH
+        Command.Type.UNKNOWN -> CommandType.MESSAGE
+        Command.Type.USER -> CommandType.USER_CONTEXT
+        Command.Type.MESSAGE -> CommandType.MESSAGE_CONTEXT
+    }
 }
