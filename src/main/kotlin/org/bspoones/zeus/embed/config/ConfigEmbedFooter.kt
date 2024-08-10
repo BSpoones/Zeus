@@ -6,11 +6,9 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @ConfigSerializable
 data class ConfigEmbedFooter(
-    var text: String,
-    var iconUrl: String
+    var text: String = "",
+    var iconUrl: String = ""
 ) {
-    constructor() : this("", "")
-
     fun autoEmbedFooter(vararg placeholders: Any): AutoEmbedFooter? {
         if (text == "" || iconUrl == "") return null
         return AutoEmbedFooter(

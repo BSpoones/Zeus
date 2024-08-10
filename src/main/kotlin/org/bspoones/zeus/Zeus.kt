@@ -67,14 +67,16 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
         ).build()
         this._api.awaitReady()
 
+        // DB Initialisation where applicable
         MongoConnection.setup()
-
         initEntities()
 
         CommandRegistry.setup(this.api)
 
         initConfig()
 
+        // Registering commands after config initialisation
+        // Due to command configs
         registerCommands()
 
         ComponentRegistry.setup(this.api)
@@ -84,7 +86,7 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
 
         logger.info("${api.selfUser.name} ready on ${api.guilds.size} servers")
         isSetup = true
-        ZeusInstance.instance = this
+        INSTANCE = this
     }
 
     fun registerCommands() {
@@ -100,8 +102,10 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
     private fun setupListeners() {
         this.api.addEventListener(Command())
     }
-}
 
-object ZeusInstance {
-    var instance: Zeus? = null
+
+    companion object {
+        var INSTANCE: Zeus? = null
+    }
+
 }

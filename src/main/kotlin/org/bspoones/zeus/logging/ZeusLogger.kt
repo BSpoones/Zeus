@@ -8,7 +8,9 @@ var SHOULD_LOG: Boolean = true
 internal fun getZeusLogger(name: String) = ZeusLogger(name)
 
 internal class ZeusLogger(name: String) {
-    private val logger = LoggerFactory.getLogger("$NAME | $name")
+    private val logName = if (name == "") NAME else "$NAME |"
+
+    private val logger = LoggerFactory.getLogger(logName)
 
     fun debug(msg: String) {
         if (SHOULD_LOG) logger.debug(msg)

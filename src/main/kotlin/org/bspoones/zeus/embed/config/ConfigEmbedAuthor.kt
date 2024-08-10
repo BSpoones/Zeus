@@ -6,11 +6,10 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @ConfigSerializable
 data class ConfigEmbedAuthor(
-    var name: String,
-    var iconUrl: String?,
-    var url: String?
+    var name: String = "",
+    var iconUrl: String? = null,
+    var url: String? = null
 ) {
-    constructor() : this("", null, null)
 
     fun autoEmbedAuthor(vararg placeholders: Any): AutoEmbedAuthor? {
         if (name == "") return null

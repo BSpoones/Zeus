@@ -105,9 +105,9 @@ class AutoSelectMenu(
         private var onSelect: ((GenericSelectMenuInteractionEvent<*, *>) -> Unit)? = null
 
         fun setCustomId(customId: String) = apply { this.customId = customId }
-        fun setPlaceholder(placeholder: String) = apply { this.placeholder = placeholder }
-        fun setMinValues(minValues: Int) = apply { this.minValues = minValues }
-        fun setMaxValues(maxValues: Int) = apply { this.maxValues = maxValues }
+        fun setPlaceholder(placeholder: String?) = apply { this.placeholder = placeholder }
+        fun setMinValues(minValues: Int?) = apply { this.minValues = minValues ?: 1 }
+        fun setMaxValues(maxValues: Int?) = apply { this.maxValues = maxValues ?: 1 }
         fun setDisabled(disabled: Boolean) = apply { this.disabled = disabled }
         fun setOptions(options: List<SelectOption>) = apply { this.options = options }
         fun setOnSelect(onSelect: (GenericSelectMenuInteractionEvent<*, *>) -> Unit) = apply { this.onSelect = onSelect }
@@ -164,9 +164,9 @@ class AutoSelectMenu(
         private var onSelect: ((GenericSelectMenuInteractionEvent<*, *>) -> Unit)? = null
 
         fun setCustomId(customId: String) = apply { this.customId = customId }
-        fun setPlaceholder(placeholder: String) = apply { this.placeholder = placeholder }
-        fun setMinValues(minValues: Int) = apply { this.minValues = minValues }
-        fun setMaxValues(maxValues: Int) = apply { this.maxValues = maxValues }
+        fun setPlaceholder(placeholder: String?) = apply { this.placeholder = placeholder }
+        fun setMinValues(minValues: Int?) = apply { this.minValues = minValues ?: 1 }
+        fun setMaxValues(maxValues: Int?) = apply { this.maxValues = maxValues ?: 1 }
         fun setDisabled(disabled: Boolean) = apply { this.disabled = disabled }
         fun setSelectTarget(selectTarget: SelectTarget) = apply { this.selectTarget = listOf(selectTarget) }
         fun setSelectTarget(selectTarget: List<SelectTarget>) = apply { this.selectTarget = selectTarget }

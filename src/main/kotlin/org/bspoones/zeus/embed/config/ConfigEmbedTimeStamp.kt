@@ -4,7 +4,5 @@ import org.spongepowered.configurate.objectmapping.ConfigSerializable
 
 @ConfigSerializable
 data class ConfigEmbedTimestamp(
-    var time: Long?
-){
-    constructor(): this(null)
-}
+    var time: Long? = null
+)
