@@ -41,6 +41,8 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
 
     open fun initEntities() {}
 
+    open fun postInit() {}
+
     abstract fun getCommands(): List<KClass<*>>
 
     fun isSetup(): Boolean = isSetup
@@ -87,6 +89,8 @@ abstract class Zeus(private val guildOnly: Boolean = false) {
         logger.info("${api.selfUser.name} ready on ${api.guilds.size} servers")
         isSetup = true
         INSTANCE = this
+
+        postInit()
     }
 
     fun registerCommands() {
