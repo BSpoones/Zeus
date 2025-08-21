@@ -20,9 +20,9 @@ data class SerialisedCommand(
     var passMember: Boolean,
 
     var message: String?,
-    var embeds: MutableList<ConfigEmbed>
+    var embeds: MutableList<ConfigEmbed>,
 
-
+    var replyEphemeral: Boolean = false,
 ) {
     constructor() : this("", "", mutableListOf(), mutableListOf(), false, false, null, mutableListOf())
 
@@ -42,6 +42,6 @@ data class SerialisedCommand(
             })
             .build()
 
-        event.reply(message).queue()
+        event.reply(message).setEphemeral(replyEphemeral).queue()
     }
 }
