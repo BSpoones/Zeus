@@ -20,6 +20,8 @@ object AsyncUtil {
             .build()
     )
 
+    fun getExecutor() = EXECUTOR
+
     fun runAsync(task: () -> Unit) {
         EXECUTOR.execute {
             task.invoke()
