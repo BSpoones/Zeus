@@ -1,11 +1,19 @@
 package org.bspoones.zeus.command
 
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.entities.Guild
+import net.dv8tion.jda.api.exceptions.ContextException
 import net.dv8tion.jda.api.interactions.commands.build.CommandData
-import org.bspoones.zeus.command.CommandRegistry.prefixGuildMap
+import org.bspoones.zeus.config.files.ZeusConfig
+import org.bspoones.zeus.config.getConfig
 import org.bspoones.zeus.command.handler.CommandTreeHandler
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory.getLogger
+import org.bspoones.zeus.command.config.CommandConfig
+import org.bspoones.zeus.command.config.SerialisedCommand
+import org.bspoones.zeus.logging.ZeusLogger
+import org.bspoones.zeus.logging.getZeusLogger
+import org.bspoones.zeus.util.scheduling.async
+import java.time.Duration
+import java.util.concurrent.TimeUnit
 import kotlin.reflect.KClass
 
 /**
@@ -15,18 +23,16 @@ import kotlin.reflect.KClass
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object CommandRegistry {
-    private val logger: Logger = getLogger("Zeus | Command Handler")
+internal object CommandRegistry {
+    private val logger: ZeusLogger = getZeusLogger("Command Handler")
 
     lateinit var api: JDA
-    lateinit var globalMessagePrefix: String
-    lateinit var prefixGuildMap: MutableMap<Long, String>
-    lateinit var guilds: List<Long>
 
     val autoCompleteMap: MutableMap<String, Map<String, List<Any>>> = mutableMapOf()
-
     private val customChoiceMap: MutableMap<String, () -> Collection<Any>> = mutableMapOf()
     private var commandRegistry: MutableList<CommandData> = mutableListOf()
+
+    private var commandConfigs: MutableList<CommandConfig> = mutableListOf()
 
 
     /**
@@ -53,18 +59,79 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun registerCommands(vararg commands: KClass<*>, guildOnly: Boolean = false) {
+        var commandCount: Int = 0
         commandRegistry = mutableListOf()
         logger.info("Registering ${commands.size} ${if (guildOnly) "guild " else ""}command objects")
         commands.forEach { clazz ->
             CommandTreeHandler.buildCommandTree(clazz).forEach { command ->
                 val commandGuildOnly = command.isGuildOnly || guildOnly
                 commandRegistry.add(command.setGuildOnly(commandGuildOnly))
-                logger.info("${command.name} registered as a ${if (commandGuildOnly) "guild" else "global"} command.")
+                logger.debug("${command.name} registered as a ${if (commandGuildOnly) "guild" else "global"} command.")
+                commandCount += 1
             }
         }
+        logger.info("$commandCount commands registered!")
 
-        registerGlobalCommands()
+        if (!guildOnly) {
+            registerGlobalCommands()
+        }
         registerGuildCommands()
+    }
+
+    fun registerCommandConfig(config: CommandConfig) {
+        // Done async as thread locking operations are required
+        async {
+            val latestConfig = getConfig(config::class.java) // Ensures latest version is fetched on registration
+
+            val cachedGuilds: MutableMap<Long, Guild> = mutableMapOf()
+            val commandData = latestConfig.commandData()
+            logger.debug("Registering Command Config: ${latestConfig::class.simpleName}")
+
+            removeExistingCommandConfig(config)
+            latestConfig.guildIds.forEach { guildId ->
+                val guild = cachedGuilds[guildId] ?: api.getGuildById(guildId) ?: return@forEach
+                cachedGuilds[guildId] = guild
+                commandData.forEach {
+                    guild.upsertCommand(it).queueAfter(5, TimeUnit.SECONDS) {
+                        logger.info("Successfully re-registered ${it.type} - ${it.name} in ${guild.name}")
+                    }
+                }
+            }
+            commandConfigs.add(latestConfig)
+        }
+    }
+
+    private fun removeExistingCommandConfig(config: CommandConfig) {
+        val existing = commandConfigs.find { it::class.simpleName == config::class.simpleName } ?: return
+        val cachedGuilds: MutableMap<Long, Guild> = mutableMapOf()
+
+        val deletedCommands = existing.commands.map { Pair(it.commandTypes, it.name) }
+            .toSet() - config.commands.map { Pair(it.commandTypes, it.name) }.toSet()
+
+        existing.guildIds.forEach { guildId ->
+            val guild = cachedGuilds[guildId] ?: api.getGuildById(guildId) ?: return@forEach
+            cachedGuilds[guildId] = guild
+
+            guild.retrieveCommands().queue { commands ->
+                deletedCommands.forEach { commandData ->
+                    // Complete required in order to ensure command is successfully deleted
+                    commandData.first.forEach { commandType ->
+                        commands.find { it.name == commandData.second && it.type == commandType.toDiscord() }?.delete()
+                            ?.queue()
+                    }
+
+                }
+            }
+        }
+        commandConfigs.removeAll { it::class.simpleName == config::class.simpleName }
+    }
+
+
+    fun findConfigCommand(guildId: Long, name: String): SerialisedCommand? {
+        return commandConfigs.find {
+            it.guildIds.contains(guildId) && it.commands.map { it.name }.contains(name)
+        }
+            ?.commands?.find { it.name == name }
     }
 
     /**
@@ -113,7 +180,7 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     private fun registerGuildCommands() {
-        guilds.forEach { guildID ->
+        getConfig<ZeusConfig>().whitelistedGuildIds.forEach { guildID ->
             val guild = api.getGuildById(guildID) ?: return@forEach
             guild.updateCommands().addCommands(commandRegistry.filter { it.isGuildOnly }).complete()
         }
@@ -126,7 +193,8 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun getPrefix(guildId: Long): String {
-        return prefixGuildMap[guildId] ?: globalMessagePrefix
+        val config = getConfig<ZeusConfig>()
+        return config.guildPrefixMap[guildId] ?: config.globalMessagePrefix
     }
 
     /**
@@ -135,9 +203,6 @@ object CommandRegistry {
      * This **should** be done within Zeus itself, so you don't have to worry!
      *
      * @param api [JDA] - Discord bot instance
-     * @param globalMessagePrefix [String] - Global message command prefix
-     * @param prefixGuildMap MutableMap<[Long],[String]> - Map of guilds to custom prefixes
-     * @param guilds List<[Long]> - List of guilds to set guild only commands for
      *
      * @see JDA
      * @see org.bspoones.zeus.command.annotations.GuildOnly
@@ -146,15 +211,9 @@ object CommandRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun setup(
-        api: JDA,
-        globalMessagePrefix: String = "!",
-        prefixGuildMap: MutableMap<Long, String> = mutableMapOf(),
-        guilds: List<Long> = listOf()
+        api: JDA
     ) {
         this.api = api
-        this.globalMessagePrefix = globalMessagePrefix
-        this.prefixGuildMap = prefixGuildMap
-        this.guilds = guilds
     }
 
 }

@@ -11,7 +11,7 @@ import kotlin.reflect.full.hasAnnotation
  * @see org.bspoones.zeus.command.annotations.GuildOnly
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object GuildOnlyHandler {
+internal object GuildOnlyHandler {
     fun buildGuildOnly(method: KFunction<*>) : Boolean{
         return method.hasAnnotation<GuildOnly>()
     }

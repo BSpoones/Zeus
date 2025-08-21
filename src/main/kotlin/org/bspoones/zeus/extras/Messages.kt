@@ -14,12 +14,40 @@ private val ZEUS_TEXT = listOf(
     " | .8888888888P  `Y8bod8P'  `V88V\"V8P' 8\"\"888P'  |  BSpoones   | ",
     " +-----------------------------------------------+-------------+ "
 )
-private const val START_COLOUR = "#FF0000"
-private const val END_COLOUR = "#0000FF"
-private const val START_INDEX = 3
-private const val LENGTH = 45
 
-object Banner {
+private val SETUP_CONFIG_MESSAGE = listOf(
+    "                  +------------------------------+",
+    "                  |   Zeus setup is incomplete!  |",
+    "                  +------------------------------+",
+    "\n",
+    "Attention: Zeus Setup is incomplete",
+    "\n",
+    "Please fill in the generated config file in /config/zeus/ZeusConfig.json",
+    "For the bot to work properly, please enter your bot token.",
+    "\n",
+    "If you plan on testing your bot, or would only like your bot to work in",
+    "certain servers, please enter your desired server IDs in guild-prefix-map",
+    "\n",
+    "Below you will find a value called gateway-intents, this contains all possible",
+    "intents for a discord bot to have, please adjust as necessary"
+)
+
+private val MONGO_FAIL_MESSAGE = listOf(
+    "                  +------------------------------+",
+    "                  |   Zeus setup is incomplete!  |",
+    "                  +------------------------------+",
+    "\n",
+    "If you plan to use database features, please fill in the generated config file",
+    "in /config/zeus/MongoConfig.json"
+)
+
+
+private const val BANNER_START_COLOUR = "#FF0000"
+private const val BANNER_END_COLOUR = "#0000FF"
+private const val BANNER_START_INDEX = 3
+private const val BANNER_LENGTH = 45
+
+internal object Messages {
     /**
      * Gradient generator
      *
@@ -65,7 +93,6 @@ object Banner {
         }
     }
 
-
     /**
      * Sends log banner to console
      *
@@ -73,16 +100,25 @@ object Banner {
      */
     fun logBanner() {
         ZEUS_TEXT.forEachIndexed { lineIndex, line ->
-            val colors = generateColorGradient(START_COLOUR, END_COLOUR, START_INDEX + LENGTH)
+            val colors = generateColorGradient(BANNER_START_COLOUR, BANNER_END_COLOUR, BANNER_START_INDEX + BANNER_LENGTH)
             println(
                 line.mapIndexed { index, char ->
-                    if ((index < START_INDEX || (LENGTH + START_INDEX) < index) || (lineIndex == 0) || (lineIndex == 8)) {
+                    if ((index < BANNER_START_INDEX || (BANNER_LENGTH + BANNER_START_INDEX) < index) || (lineIndex == 0) || (lineIndex == 8)) {
                         "\u001B[0m$char"
                     } else {
-                        "${colors[index - START_INDEX]}$char"
+                        "${colors[index - BANNER_START_INDEX]}$char"
                     }
                 }.joinToString("")
             )
         }
     }
+
+    fun logConfigErrorMessage() {
+        println(SETUP_CONFIG_MESSAGE.joinToString("\n"))
+    }
+
+    fun logMongoErrorMessage() {
+        println(MONGO_FAIL_MESSAGE.joinToString("\n"))
+    }
+
 }

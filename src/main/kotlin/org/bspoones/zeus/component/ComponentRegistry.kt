@@ -4,8 +4,9 @@ import net.dv8tion.jda.api.JDA
 import net.dv8tion.jda.api.events.interaction.ModalInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent
 import net.dv8tion.jda.api.events.interaction.component.GenericSelectMenuInteractionEvent
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory.getLogger
+import org.bspoones.zeus.NAME
+import org.bspoones.zeus.logging.ZeusLogger
+import org.bspoones.zeus.logging.getZeusLogger
 
 /**
  * **Component Registry**
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory.getLogger
  */
 object ComponentRegistry {
     lateinit var api: JDA
-    private var logger: Logger = getLogger("Zeus | Component handler")
+    private var logger: ZeusLogger = getZeusLogger("Component handler")
 
     val buttonMap: MutableMap<String, (ButtonInteractionEvent) -> Unit> = mutableMapOf()
     val modalMap: MutableMap<String, (ModalInteractionEvent) -> Unit> = mutableMapOf()
@@ -35,9 +36,9 @@ object ComponentRegistry {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun setup(api: JDA) {
-        this.api = api
+        ComponentRegistry.api = api
 
-        this.api.addEventListener(
+        ComponentRegistry.api.addEventListener(
             ComponentListener
         )
     }
@@ -56,7 +57,7 @@ object ComponentRegistry {
      */
     fun registerButton(id: String, button: (ButtonInteractionEvent) -> Unit) {
         buttonMap[id] = button
-        logger.info("Button of ID: $id registered successfully")
+        logger.debug("Button of ID: $id registered successfully")
     }
 
     /**
@@ -73,7 +74,7 @@ object ComponentRegistry {
      */
     fun registerModal(id: String, modal: (ModalInteractionEvent) -> Unit) {
         modalMap[id] = modal
-        logger.info("Modal of ID: $id registered successfully")
+        logger.debug("Modal of ID: $id registered successfully")
     }
 
     /**
@@ -90,7 +91,7 @@ object ComponentRegistry {
      */
     fun registerStringSelectMenu(id: String, stringSelect: (GenericSelectMenuInteractionEvent<*, *>) -> Unit) {
         stringSelectMap[id] = stringSelect
-        logger.info("String select menu of ID: $id registered successfully")
+        logger.debug("String select menu of ID: $id registered successfully")
     }
 
     /**
@@ -107,7 +108,7 @@ object ComponentRegistry {
      */
     fun registerEntitySelectMenu(id: String, entitySelect: (GenericSelectMenuInteractionEvent<*, *>) -> Unit) {
         entitySelectMap[id] = entitySelect
-        logger.info("Entity select menu of ID: $id registered successfully")
+        logger.debug("Entity select menu of ID: $id registered successfully")
     }
 
 

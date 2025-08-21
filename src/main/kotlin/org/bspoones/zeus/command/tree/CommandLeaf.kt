@@ -8,7 +8,7 @@ import kotlin.reflect.KFunction
  *
  * Storage node for [CommandForest]
  */
-class CommandLeaf(
+internal class CommandLeaf(
     val type: CommandType,
     val name: String,
     val function: KFunction<*>

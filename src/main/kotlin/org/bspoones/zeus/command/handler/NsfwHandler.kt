@@ -18,7 +18,7 @@ import kotlin.reflect.full.hasAnnotation
  * @see org.bspoones.zeus.command.annotations.NSFW
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object NsfwHandler {
+internal object NsfwHandler {
     fun buildNsfw(method: KFunction<*>): Boolean {
         return method.hasAnnotation<NSFW>()
     }

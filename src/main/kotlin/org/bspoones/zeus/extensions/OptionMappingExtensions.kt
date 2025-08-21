@@ -17,7 +17,7 @@ import kotlin.reflect.KType
  * @see OptionMapping
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-fun OptionMapping.getOptionValue(parameterType: KType): Any? = when (parameterType.optionType()) {
+internal fun OptionMapping.getOptionValue(parameterType: KType): Any? = when (parameterType.optionType()) {
     OptionType.STRING -> asString
     OptionType.INTEGER -> asInt
     OptionType.BOOLEAN -> asBoolean

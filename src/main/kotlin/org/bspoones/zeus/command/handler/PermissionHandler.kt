@@ -16,7 +16,7 @@ import kotlin.reflect.full.findAnnotation
  * @see org.bspoones.zeus.command.annotations.permission
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object PermissionHandler {
+internal object PermissionHandler {
 
     /**
      * Command permission builder

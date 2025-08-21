@@ -1,19 +1,22 @@
 package org.bspoones.zeus.command
 
 import net.dv8tion.jda.api.entities.Message.Attachment
-import net.dv8tion.jda.api.events.interaction.command.CommandAutoCompleteInteractionEvent
-import net.dv8tion.jda.api.events.interaction.command.MessageContextInteractionEvent
-import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent
-import net.dv8tion.jda.api.events.interaction.command.UserContextInteractionEvent
+import net.dv8tion.jda.api.events.interaction.command.*
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent
 import net.dv8tion.jda.api.hooks.ListenerAdapter
+import net.dv8tion.jda.api.interactions.commands.Command
 import org.bspoones.zeus.command.annotations.CommandOption
+import org.bspoones.zeus.command.annotations.SYNC
 import org.bspoones.zeus.command.tree.CommandForest
 import org.bspoones.zeus.command.enums.CommandType
+import org.bspoones.zeus.command.enums.toCommandType
 import org.bspoones.zeus.command.handler.NsfwHandler
 import org.bspoones.zeus.command.handler.OptionHandler
 import org.bspoones.zeus.extensions.getOptionValue
+import org.bspoones.zeus.logging.getZeusLogger
+import org.bspoones.zeus.util.scheduling.async
 import kotlin.reflect.full.findAnnotation
+import kotlin.reflect.full.hasAnnotation
 import kotlin.reflect.jvm.javaMethod
 
 /**
@@ -40,6 +43,8 @@ import kotlin.reflect.jvm.javaMethod
  */
 open class Command : ListenerAdapter() {
 
+    private val logger = getZeusLogger("Command")
+
     /**
      * Slash command interaction listener
      *
@@ -50,6 +55,8 @@ open class Command : ListenerAdapter() {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     override fun onSlashCommandInteraction(event: SlashCommandInteractionEvent) {
+        if (tryRunPetal(event)) return
+
         val function = CommandForest.getFunction(CommandType.SLASH, event.fullCommandName) ?: return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
 
@@ -61,6 +68,7 @@ open class Command : ListenerAdapter() {
          * @author <a href="https://www.bspoones.com">BSpoones</a>
          */
         val args = mutableListOf<Any?>()
+        val sync = function.hasAnnotation<SYNC>()
         function.parameters.forEach { parameter ->
             val optionAnnotation = parameter.findAnnotation<CommandOption>() ?: return@forEach
             val value = event.getOption(optionAnnotation.name)
@@ -68,13 +76,20 @@ open class Command : ListenerAdapter() {
                 val optionValue = value.getOptionValue(parameter.type)
                     ?: throw IllegalArgumentException("Option type cannot be ${parameter.type}")
                 args.add(optionValue)
-            }
-            else {
+            } else {
                 // When an option is isRequired
                 args.add(null)
             }
         }
-        function.call(functionObj, event, *args.toTypedArray())
+
+        logger.info("SLASH - @${event.user.name} in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
+        if (sync) {
+            function.call(functionObj, event, *args.toTypedArray())
+        } else {
+            async {
+                function.call(functionObj, event, *args.toTypedArray())
+            }
+        }
         return
     }
 
@@ -88,10 +103,20 @@ open class Command : ListenerAdapter() {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     override fun onUserContextInteraction(event: UserContextInteractionEvent) {
+        if (tryRunPetal(event)) return
+
         val function = CommandForest.getFunction(CommandType.USER_CONTEXT, event.fullCommandName) ?: return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
-        function.call(functionObj, event)
+        if (function.hasAnnotation<SYNC>()) {
+
+            logger.info("USER CONTEXT - @${event.user.name} in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
+            function.call(functionObj, event)
+        } else {
+            async {
+                function.call(functionObj, event)
+            }
+        }
     }
 
     /**
@@ -104,10 +129,20 @@ open class Command : ListenerAdapter() {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     override fun onMessageContextInteraction(event: MessageContextInteractionEvent) {
+        if (tryRunPetal(event)) return
+
         val function = CommandForest.getFunction(CommandType.MESSAGE_CONTEXT, event.fullCommandName) ?: return
         val functionObj = function.javaMethod?.declaringClass?.kotlin?.objectInstance ?: return
         if (NsfwHandler.nsfwCheck(function, event)) return
-        function.call(functionObj, event)
+
+        logger.info("MESSAGE CONTEXT - @${event.user.name} in ${if (event.isFromGuild) "${event.guild!!.name} (${event.guild!!.id})" else "their DM"}: ${event.commandString}")
+        if (function.hasAnnotation<SYNC>()) {
+            function.call(functionObj, event)
+        } else {
+            async {
+                function.call(functionObj, event)
+            }
+        }
     }
 
     /**
@@ -138,6 +173,7 @@ open class Command : ListenerAdapter() {
         val funcArgs = mutableListOf<Any>()
 
         var attachmentIndex = 0 // Ensures attachments are added correctly
+        val sync = function.hasAnnotation<SYNC>()
         function.parameters.drop(1).forEachIndexed { index, parameter ->
             val optionAnnotation = parameter.findAnnotation<CommandOption>() ?: return@forEachIndexed
 
@@ -168,7 +204,7 @@ open class Command : ListenerAdapter() {
             funcArgs.add(optionValue)
         }
 
-        // Argument size check - Ensures all required options are given
+        // Argument size check - Ensures all required options are given in message commands
         val minSize = function.parameters.size - 2 - function.parameters.filter { it.isOptional }.size
         if (args.size < minSize) {
             event.channel.sendMessage("<@${event.author.id}> Invalid arguments: ${args.joinToString(" ")}")
@@ -177,9 +213,15 @@ open class Command : ListenerAdapter() {
         }
         // TODO -> Make this work
 //        args.addAll(List(function.parameters.filter { it.isOptional }.size - args.size) { null })
-        function.call(functionObj, event, *args.toTypedArray())
-        return
 
+        logger.info("MESSAGE - @${event.author.name} in ${if (event.isFromGuild) "${event.guild.name} (${event.guild.id})" else "their DM"}: ${event.message}")
+        if (sync) {
+            function.call(functionObj, event, *args.toTypedArray())
+        } else {
+            async {
+                function.call(functionObj, event, *args.toTypedArray())
+            }
+        }
     }
 
     /**
@@ -209,5 +251,14 @@ open class Command : ListenerAdapter() {
         ).queue()
     }
 
-
+    private fun tryRunPetal(event: GenericCommandInteractionEvent): Boolean {
+        if (event.guild != null) {
+            val configCommand = CommandRegistry.findConfigCommand(event.guild!!.idLong, event.name)
+            if (configCommand != null) {
+                configCommand.run(event)
+                return true
+            }
+        }
+        return false
+    }
 }

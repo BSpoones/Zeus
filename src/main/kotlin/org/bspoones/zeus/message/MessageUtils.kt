@@ -27,7 +27,7 @@ object MessageUtils {
      * @author <a href="https://www.bspoones.com">BSpoones</a>
      */
     fun setup(api: JDA) {
-        this.api = api
+        MessageUtils.api = api
     }
 
     /**

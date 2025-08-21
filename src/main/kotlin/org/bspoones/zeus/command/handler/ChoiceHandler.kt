@@ -14,7 +14,7 @@ import kotlin.reflect.KParameter
  * @see org.bspoones.zeus.command.annotations.choices
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object ChoiceHandler {
+internal object ChoiceHandler {
 
     /**
      * All possible choices a command choice can be

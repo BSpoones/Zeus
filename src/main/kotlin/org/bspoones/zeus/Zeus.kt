@@ -1,15 +1,25 @@
 package org.bspoones.zeus
 
 import net.dv8tion.jda.api.JDA
+import net.dv8tion.jda.api.JDABuilder
 import org.bspoones.zeus.command.Command
+import org.bspoones.zeus.config.files.MongoConfig
+import org.bspoones.zeus.config.files.ZeusConfig
+import org.bspoones.zeus.config.getConfig
+import org.bspoones.zeus.config.initConfig
 import org.bspoones.zeus.command.CommandRegistry
 import org.bspoones.zeus.component.ComponentRegistry
-import org.bspoones.zeus.extras.Banner
+import org.bspoones.zeus.extras.Messages
 import org.bspoones.zeus.message.MessageUtils
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory.getLogger
+import org.bspoones.zeus.logging.SHOULD_LOG
+import org.bspoones.zeus.logging.ZeusLogger
+import org.bspoones.zeus.logging.getZeusLogger
+import org.bspoones.zeus.storage.MongoConnection
+import kotlin.reflect.KClass
+import kotlin.system.exitProcess
 
-const val VERSION = "1.2"
+const val VERSION = "1.3"
+const val NAME = "ZEUS"
 
 /**
  * **Zeus**
@@ -20,63 +30,71 @@ const val VERSION = "1.2"
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object Zeus {
-    private lateinit var api: JDA
-    private lateinit var globalMessagePrefix: String
-    private lateinit var prefixGuildMap: MutableMap<Long, String>
-    private lateinit var guilds: List<Long>
+abstract class Zeus(private val guildOnly: Boolean = false) {
+    private lateinit var _api: JDA
+    private var isSetup: Boolean = false
+    private val logger: ZeusLogger = getZeusLogger("")
+    val api: JDA
+        get() = _api
 
-    var logger: Logger = getLogger("Zeus")
-    var isSetup = false
+    open fun initConfig() {}
 
+    open fun initEntities() {}
 
-    /**
-     * **Zeus Setup**
-     *
-     * Run this to initialise Zeus
-     *
-     * @param api [JDA] - Discord bot instance
-     * @param globalMessagePrefix [String] - Global message command prefix
-     * @param prefixGuildMap MutableMap<[Long],[String]> - Map of guilds to custom prefixes
-     * @param guilds List<[Long]> - List of guilds to set guild only commands for
-     *
-     * @see JDA
-     * @see org.bspoones.zeus.command.annotations.GuildOnly
-     * @see org.bspoones.zeus.command.handler.GuildOnlyHandler
-     *
-     * @author <a href="https://www.bspoones.com">BSpoones</a>
-     */
-    fun setup(
-        api: JDA,
-        globalMessagePrefix: String = "!",
-        prefixGuildMap: MutableMap<Long, String> = mutableMapOf(),
-        guilds: List<Long> = listOf(),
-        logBanner: Boolean = true
-    ) {
-        logger.info("Starting Zeus v$VERSION")
-        if (logBanner) {
-            Banner.logBanner()
+    abstract fun getCommands(): List<KClass<*>>
+
+    fun isSetup(): Boolean = isSetup
+
+    fun start(logging: Boolean = true) {
+        SHOULD_LOG = logging
+        if (logging) Messages.logBanner()
+
+        initConfig(
+            ZeusConfig::class,
+            MongoConfig::class
+        )
+        val config = getConfig<ZeusConfig>()
+
+        // Config classed as incomplete if token is not given
+        if (config.token == "") {
+            Messages.logConfigErrorMessage()
+            exitProcess(0)
         }
 
-        this.api = api
-        this.globalMessagePrefix = globalMessagePrefix
-        this.prefixGuildMap = prefixGuildMap
-        this.guilds = guilds
+        this._api = JDABuilder.createDefault(
+            config.token,
+            config.gatewayIntents
+        ).build()
+        this._api.awaitReady()
 
-        CommandRegistry.setup(
-            this.api,
-            this.globalMessagePrefix,
-            this.prefixGuildMap,
-            this.guilds
-        )
+        // DB Initialisation where applicable
+        MongoConnection.setup()
+        initEntities()
+
+        CommandRegistry.setup(this.api)
+
+        initConfig()
+
+        // Registering commands after config initialisation
+        // Due to command configs
+        registerCommands()
+
         ComponentRegistry.setup(this.api)
         MessageUtils.setup(this.api)
 
         setupListeners()
 
-        this.isSetup = true
+        logger.info("${api.selfUser.name} ready on ${api.guilds.size} servers")
+        isSetup = true
+        INSTANCE = this
     }
 
+    fun registerCommands() {
+        CommandRegistry.registerCommands(
+            *getCommands().toTypedArray(),
+            guildOnly = guildOnly
+        )
+    }
 
     /**
      * Adds all required Listeners
@@ -84,4 +102,10 @@ object Zeus {
     private fun setupListeners() {
         this.api.addEventListener(Command())
     }
+
+
+    companion object {
+        var INSTANCE: Zeus? = null
+    }
+
 }

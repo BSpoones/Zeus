@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData
 import net.dv8tion.jda.api.interactions.commands.build.Commands
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandData
 import net.dv8tion.jda.api.interactions.commands.build.SubcommandGroupData
+import org.bspoones.zeus.NAME
 import org.bspoones.zeus.command.annotations.SlashCommandGroup
 import org.bspoones.zeus.command.annotations.command.MessageCommand
 import org.bspoones.zeus.command.annotations.command.SlashCommand
@@ -12,8 +13,8 @@ import org.bspoones.zeus.command.annotations.command.context.MessageContextComma
 import org.bspoones.zeus.command.annotations.command.context.UserContextCommand
 import org.bspoones.zeus.command.enums.CommandType
 import org.bspoones.zeus.command.tree.CommandForest
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory.getLogger
+import org.bspoones.zeus.logging.ZeusLogger
+import org.bspoones.zeus.logging.getZeusLogger
 import java.lang.RuntimeException
 import kotlin.reflect.KClass
 import kotlin.reflect.full.declaredMemberFunctions
@@ -25,8 +26,8 @@ import kotlin.reflect.full.hasAnnotation
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object CommandTreeHandler {
-    private val logger: Logger = getLogger("Zeus | Command Tree Handler")
+internal object CommandTreeHandler {
+    private val logger: ZeusLogger = getZeusLogger("Command Tree Handler")
 
     /**
      * Adds a command clazz to the command tree
@@ -146,6 +147,10 @@ object CommandTreeHandler {
                     val commandName = "${if (parentName.isNotBlank()) "$parentName " else ""}${it.name}"
                     CommandForest.addLeaf(CommandType.SLASH, commandName, method)
                     this.logger.debug("Building Slash Command $commandName")
+                    if (it.description == "") {
+                        throw IllegalArgumentException("Slash command description cannot be empty.")
+                    }
+
                     Commands.slash(it.name, it.description)
                         .addOptions(OptionHandler.buildOptions(method, commandName))
                         .setDefaultPermissions(PermissionHandler.buildPermissions(method))

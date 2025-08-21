@@ -10,7 +10,7 @@ import kotlin.reflect.KFunction
  *
  * @author <a href="https://www.bspoones.com">BSpoones</a>
  */
-object CommandForest {
+internal object CommandForest {
 
     /**
      * Command leaves the central storage of registered commands
@@ -76,7 +76,7 @@ object CommandForest {
         }
         // Function presence check
         if (leaves.filter { it.type == type }.map { it.function }.contains(function)) {
-            throw IllegalArgumentException("Function has already been registered elsewhere as a ${type.typeName}")
+            throw IllegalArgumentException("Function has already been registered elsewhere as a ${type.name}_COMMAND")
         }
 
         leaves.add(
